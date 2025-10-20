@@ -79,21 +79,15 @@ async def fetch_transcript(video_id: str) -> str:
 
         try:
             # Try to get English transcript first, then fall back to any available
-            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-
-            try:
-                transcript = transcript_list.find_transcript(["en"])
-            except NoTranscriptFound:
-                # Get any available transcript
-                transcript = transcript_list.find_generated_transcript(["en"])
-
-            transcript_data = transcript.fetch()
+            transcript_data = YouTubeTranscriptApi().fetch(video_id, languages=["en"])
 
             # Combine all text segments
-            full_text = " ".join([entry["text"] for entry in transcript_data])
+            full_text = " ".join([entry.text for entry in transcript_data])
 
             span.set_attribute("transcript.length", len(full_text))
-            logger.info(f"Fetched transcript for video {video_id}, length: {len(full_text)}")
+            logger.info(
+                f"Fetched transcript for video {video_id}, length: {len(full_text)}"
+            )
 
             return full_text
 

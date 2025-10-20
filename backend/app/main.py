@@ -18,7 +18,16 @@ async def lifespan(app: FastAPI):
     """Application lifespan context manager."""
     logger.info("Starting Travel Planner API")
     setup_tracing()
+
+    # Start session manager
+    from app.services.session_manager import get_session_manager
+    session_manager = get_session_manager()
+    await session_manager.start()
+
     yield
+
+    # Stop session manager
+    await session_manager.stop()
     logger.info("Shutting down Travel Planner API")
 
 

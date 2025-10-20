@@ -1,7 +1,9 @@
 """Langfuse integration for LLM observability."""
 
+import inspect
+from functools import wraps
+
 from langfuse import Langfuse
-from langfuse.decorators import observe
 
 from app.config import settings
 from app.utils.logger import setup_logger
@@ -27,5 +29,30 @@ def get_langfuse() -> Langfuse | None:
     return langfuse_client
 
 
-# Re-export the observe decorator for convenience
+def observe():
+    """
+    Decorator for observing functions with Langfuse.
+    This is a simplified version for MVP - just passes through the function.
+    In production, integrate with Langfuse's observe decorator when available.
+    """
+
+    def decorator(func):
+        @wraps(func)
+        async def async_wrapper(*args, **kwargs):
+            # For MVP, just call the function
+            # In production, add Langfuse tracing here
+            return await func(*args, **kwargs)
+
+        @wraps(func)
+        def sync_wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        # Return appropriate wrapper based on function type
+        if inspect.iscoroutinefunction(func):
+            return async_wrapper
+        return sync_wrapper
+
+    return decorator
+
+
 __all__ = ["langfuse_client", "get_langfuse", "observe"]
