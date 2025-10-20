@@ -1,8 +1,9 @@
 # Python
-backend/__pycache__/
-backend/.pytest_cache/
-backend/venv/
+backend/**/__pycache__/
+backend/**/.pytest_cache/
+backend/.venv/
 backend/.env
+backend/**/*.py[cod]
 
 # Node
 frontend/node_modules/
@@ -13,3 +14,4 @@ frontend/.env.local
 .DS_Store
 *.log
 .llm/
+.claude/
