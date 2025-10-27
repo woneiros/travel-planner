@@ -4,7 +4,7 @@ Next.js frontend for the Travel Planner AI application.
 
 ## Tech Stack
 
-- Next.js 14+ (App Router)
+- Next.js 15+ (App Router)
 - TypeScript
 - React 19
 - Tailwind CSS

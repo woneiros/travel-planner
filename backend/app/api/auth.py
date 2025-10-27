@@ -96,7 +96,7 @@ async def get_current_user(request: Request) -> dict:
             logger.warning(f"Could not fetch user details from Clerk: {e}")
             user_info = {
                 "user_id": user_id,
-                "email": payload.get("email", "NO_EMAIL_IN_TOKEN"),
+                "email": payload.get("email", None),
                 "first_name": None,
                 "last_name": None,
             }
