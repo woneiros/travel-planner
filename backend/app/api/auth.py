@@ -76,20 +76,27 @@ async def get_current_user(request: Request) -> dict:
         # Get additional user info from Clerk API
         try:
             user = clerk_client.users.get(user_id=user_id)
+            if not user:
+                raise ValueError("User not found in Clerk")
             user_info = {
                 "user_id": user_id,
                 "email": (
-                    user.email_addresses[0].email_address if user.email_addresses else None
+                    user.email_addresses[0].email_address
+                    if user.email_addresses and user.email_addresses[0]
+                    else None
                 ),
                 "first_name": user.first_name,
                 "last_name": user.last_name,
             }
         except Exception as e:
+            payload = request_state.payload
+            if payload is None:
+                payload = {}
             # If we can't fetch user details, use basic info from token
             logger.warning(f"Could not fetch user details from Clerk: {e}")
             user_info = {
                 "user_id": user_id,
-                "email": request_state.payload.get("email"),
+                "email": payload.get("email", "NO_EMAIL_IN_TOKEN"),
                 "first_name": None,
                 "last_name": None,
             }
