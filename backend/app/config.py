@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     langfuse_secret_key: str = ""
     langfuse_host: str = "https://cloud.langfuse.com"
 
+    # Clerk Authentication
+    clerk_secret_key: str = ""
+    clerk_publishable_key: str = ""
+
     # Application
     environment: str = "development"
     log_level: str = "INFO"

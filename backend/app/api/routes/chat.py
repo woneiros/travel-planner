@@ -5,6 +5,7 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from app.api.auth import CurrentUser
 from app.models.chat import ChatMessage
 from app.models.session import Session
 from app.observability.langfuse_client import observe
@@ -47,9 +48,11 @@ class ChatResponse(BaseModel):
 
 @router.post("/chat", response_model=ChatResponse)
 @observe()
-async def chat(request: ChatRequest):
+async def chat(request: ChatRequest, current_user: CurrentUser):
     """
     Chat with the AI agent about extracted places.
+
+    Requires authentication via Clerk JWT token in Authorization header.
 
     Process:
     1. Retrieve session with places and chat history
@@ -59,17 +62,21 @@ async def chat(request: ChatRequest):
 
     Args:
         request: ChatRequest with session ID, message, and LLM provider
+        current_user: Authenticated user from Clerk JWT
 
     Returns:
         ChatResponse with agent message, referenced places, and sources
 
     Raises:
-        HTTPException: If chat fails or session is invalid
+        HTTPException: If chat fails, session is invalid, or unauthorized
     """
     with tracer.start_as_current_span("chat_interaction") as span:
         span.set_attribute("session.id", request.session_id)
         span.set_attribute("user.query", request.message)
         span.set_attribute("llm.provider", request.llm_provider)
+        span.set_attribute("user.id", current_user["user_id"])
+        if current_user.get("email"):
+            span.set_attribute("user.email", current_user["email"])
 
         try:
             # Get session
@@ -79,7 +86,9 @@ async def chat(request: ChatRequest):
             # Create LLM client
             llm_client = create_llm_client(request.llm_provider)
 
-            logger.info(f"Processing chat for session {request.session_id}")
+            logger.info(
+                f"User {current_user['user_id']} processing chat for session {request.session_id}"
+            )
 
             # Chat with agent
             response_text, referenced_place_ids = await chat_with_agent(
@@ -139,23 +148,26 @@ async def chat(request: ChatRequest):
 
 
 @router.get("/session/{session_id}", response_model=Session)
-async def get_session(session_id: str):
+async def get_session(session_id: str, current_user: CurrentUser):
     """
     Retrieve session data by ID.
 
+    Requires authentication via Clerk JWT token in Authorization header.
+
     Args:
         session_id: Session ID to retrieve
+        current_user: Authenticated user from Clerk JWT
 
     Returns:
         Complete Session object with videos, places, and chat history
 
     Raises:
-        HTTPException: If session not found or expired
+        HTTPException: If session not found, expired, or unauthorized
     """
     try:
         session_manager = get_session_manager()
         session = session_manager.get_session(session_id)
-        logger.info(f"Retrieved session {session_id}")
+        logger.info(f"User {current_user['user_id']} retrieved session {session_id}")
         return session
 
     except InvalidSessionError as e:
@@ -164,23 +176,26 @@ async def get_session(session_id: str):
 
 
 @router.delete("/session/{session_id}")
-async def delete_session(session_id: str):
+async def delete_session(session_id: str, current_user: CurrentUser):
     """
     Delete a session by ID.
 
+    Requires authentication via Clerk JWT token in Authorization header.
+
     Args:
         session_id: Session ID to delete
+        current_user: Authenticated user from Clerk JWT
 
     Returns:
         Success message
 
     Raises:
-        HTTPException: If session not found
+        HTTPException: If session not found or unauthorized
     """
     try:
         session_manager = get_session_manager()
         session_manager.delete_session(session_id)
-        logger.info(f"Deleted session {session_id}")
+        logger.info(f"User {current_user['user_id']} deleted session {session_id}")
         return {"message": f"Session {session_id} deleted successfully"}
 
     except InvalidSessionError as e:

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { UserButton } from "@clerk/nextjs";
 import VideoInput from "@/components/VideoInput";
 import PlaceSummary from "@/components/PlaceSummary";
 import ChatInterface from "@/components/ChatInterface";
 import LoadingState from "@/components/LoadingState";
-import { api } from "@/lib/api";
+import { useApi } from "@/lib/api-client";
 import type {
   VideoSummary,
   Place,
@@ -14,6 +15,7 @@ import type {
 } from "@/lib/types";
 
 export default function Home() {
+  const api = useApi();
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [videos, setVideos] = useState<VideoSummary[]>([]);
   const [places, setPlaces] = useState<Place[]>([]);
@@ -95,7 +97,10 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
-        <header className="text-center mb-8">
+        <header className="text-center mb-8 relative">
+          <div className="absolute top-0 right-0">
+            <UserButton afterSignOutUrl="/sign-in" />
+          </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Travel Planner AI
           </h1>
