@@ -6,6 +6,7 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
 
+from app.api.auth import CurrentUser
 from app.models.video import VideoSummary
 from app.observability.langfuse_client import observe
 from app.observability.tracing import tracer
@@ -50,9 +51,11 @@ class IngestResponse(BaseModel):
 
 @router.post("/ingest", response_model=IngestResponse)
 @observe()
-async def ingest_videos(request: IngestRequest):
+async def ingest_videos(request: IngestRequest, current_user: CurrentUser):
     """
     Ingest YouTube videos and extract places.
+
+    Requires authentication via Clerk JWT token in Authorization header.
 
     Process:
     1. Validate YouTube URLs
@@ -63,24 +66,28 @@ async def ingest_videos(request: IngestRequest):
 
     Args:
         request: IngestRequest with video URLs and LLM provider
+        current_user: Authenticated user from Clerk JWT
 
     Returns:
         IngestResponse with session ID, video summaries, and place count
 
     Raises:
-        HTTPException: If processing fails
+        HTTPException: If processing fails or unauthorized
     """
     with tracer.start_as_current_span("ingest_videos") as span:
         start_time = time.time()
         span.set_attribute("video.count", len(request.video_urls))
         span.set_attribute("llm.provider", request.llm_provider)
+        span.set_attribute("user.id", current_user["user_id"])
+        if current_user.get("email"):
+            span.set_attribute("user.email", current_user["email"])
 
         try:
             # Create LLM client
             llm_client = create_llm_client(request.llm_provider)
             logger.info(
-                f"Starting ingestion of {len(request.video_urls)} videos "
-                f"using {request.llm_provider}"
+                f"User {current_user['user_id']} starting ingestion of "
+                f"{len(request.video_urls)} videos using {request.llm_provider}"
             )
 
             # Create new session

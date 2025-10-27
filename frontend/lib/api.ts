@@ -2,6 +2,7 @@
  * API client for the Travel Planner backend
  */
 
+import { auth } from "@clerk/nextjs/server";
 import type {
   IngestRequest,
   IngestResponse,
@@ -23,6 +24,16 @@ class APIError extends Error {
   }
 }
 
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const { getToken } = await auth();
+  const token = await getToken();
+
+  return {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
+}
+
 async function fetchAPI<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -30,10 +41,12 @@ async function fetchAPI<T>(
   const url = `${API_URL}${endpoint}`;
 
   try {
+    const authHeaders = await getAuthHeaders();
+
     const response = await fetch(url, {
       ...options,
       headers: {
-        "Content-Type": "application/json",
+        ...authHeaders,
         ...options.headers,
       },
     });
