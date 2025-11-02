@@ -17,12 +17,11 @@ export default function ChatInterface({
   disabled,
 }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
-  const [provider, setProvider] = useState<"openai" | "anthropic">("openai");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim() && !disabled) {
-      onSendMessage(input.trim(), provider);
+      onSendMessage(input.trim(), "anthropic");
       setInput("");
     }
   };
@@ -57,39 +56,7 @@ export default function ChatInterface({
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-2 md:mb-3 text-purple-800">LLM Provider</label>
-          <div className="flex flex-col md:flex-row gap-2 md:gap-4">
-            <label className="flex items-center w-full md:w-auto px-4 py-3 md:py-2 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer touch-manipulation">
-              <input
-                type="radio"
-                value="openai"
-                checked={provider === "openai"}
-                onChange={(e) =>
-                  setProvider(e.target.value as "openai" | "anthropic")
-                }
-                disabled={disabled || isLoading}
-                className="mr-3 md:mr-2 text-purple-600 focus:ring-purple-500 w-4 h-4"
-              />
-              <span className="text-purple-800 font-medium">OpenAI</span>
-            </label>
-            <label className="flex items-center w-full md:w-auto px-4 py-3 md:py-2 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer touch-manipulation">
-              <input
-                type="radio"
-                value="anthropic"
-                checked={provider === "anthropic"}
-                onChange={(e) =>
-                  setProvider(e.target.value as "openai" | "anthropic")
-                }
-                disabled={disabled || isLoading}
-                className="mr-3 md:mr-2 text-purple-600 focus:ring-purple-500 w-4 h-4"
-              />
-              <span className="text-purple-800 font-medium">Anthropic</span>
-            </label>
-          </div>
-        </div>
-
+      <form onSubmit={handleSubmit}>
         <div className="flex flex-col md:flex-row gap-2 md:gap-3">
           <input
             type="text"
