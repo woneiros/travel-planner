@@ -28,12 +28,12 @@ export default function ChatInterface({
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Chat with AI Agent</h2>
+    <div className="w-full max-w-full md:max-w-4xl mx-auto p-4 md:p-6 lg:p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100">
+      <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-purple-900">Chat with AI Agent</h2>
 
-      <div className="mb-4 h-96 overflow-y-auto border border-gray-200 rounded p-4 space-y-3">
+      <div className="mb-4 md:mb-6 h-64 md:h-96 lg:h-[500px] overflow-y-auto border-2 border-purple-200 rounded-xl p-3 md:p-5 space-y-2 md:space-y-3 bg-gradient-to-br from-purple-50/30 to-pink-50/30">
         {messages.length === 0 ? (
-          <p className="text-gray-500 text-center">
+          <p className="text-purple-500 text-center text-sm md:text-base">
             {disabled
               ? "Process videos first to start chatting"
               : "Start chatting about the places..."}
@@ -42,26 +42,26 @@ export default function ChatInterface({
           messages.map((msg, idx) => (
             <div
               key={idx}
-              className={`p-3 rounded ${
+              className={`p-3 md:p-4 rounded-xl shadow-sm ${
                 msg.role === "user"
-                  ? "bg-blue-100 ml-auto max-w-[80%]"
-                  : "bg-gray-100 mr-auto max-w-[80%]"
+                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white ml-auto max-w-[95%] sm:max-w-[85%] md:max-w-[80%]"
+                  : "bg-white border-2 border-purple-200 text-purple-900 mr-auto max-w-[95%] sm:max-w-[85%] md:max-w-[80%]"
               }`}
             >
-              <p className="text-sm font-semibold mb-1">
+              <p className="text-xs font-semibold mb-1 md:mb-2 opacity-80">
                 {msg.role === "user" ? "You" : "AI Agent"}
               </p>
-              <p className="text-sm">{msg.content}</p>
+              <p className="text-sm leading-relaxed">{msg.content}</p>
             </div>
           ))
         )}
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label className="block text-sm font-medium mb-2">LLM Provider</label>
-          <div className="flex gap-4">
-            <label className="flex items-center">
+      <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-2 md:mb-3 text-purple-800">LLM Provider</label>
+          <div className="flex flex-col md:flex-row gap-2 md:gap-4">
+            <label className="flex items-center w-full md:w-auto px-4 py-3 md:py-2 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer touch-manipulation">
               <input
                 type="radio"
                 value="openai"
@@ -70,11 +70,11 @@ export default function ChatInterface({
                   setProvider(e.target.value as "openai" | "anthropic")
                 }
                 disabled={disabled || isLoading}
-                className="mr-2"
+                className="mr-3 md:mr-2 text-purple-600 focus:ring-purple-500 w-4 h-4"
               />
-              OpenAI
+              <span className="text-purple-800 font-medium">OpenAI</span>
             </label>
-            <label className="flex items-center">
+            <label className="flex items-center w-full md:w-auto px-4 py-3 md:py-2 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer touch-manipulation">
               <input
                 type="radio"
                 value="anthropic"
@@ -83,14 +83,14 @@ export default function ChatInterface({
                   setProvider(e.target.value as "openai" | "anthropic")
                 }
                 disabled={disabled || isLoading}
-                className="mr-2"
+                className="mr-3 md:mr-2 text-purple-600 focus:ring-purple-500 w-4 h-4"
               />
-              Anthropic
+              <span className="text-purple-800 font-medium">Anthropic</span>
             </label>
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col md:flex-row gap-2 md:gap-3">
           <input
             type="text"
             value={input}
@@ -101,12 +101,12 @@ export default function ChatInterface({
                 : "Ask about places, restaurants, etc..."
             }
             disabled={disabled || isLoading}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+            className="flex-1 px-3 md:px-4 py-3 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent disabled:bg-purple-50 disabled:text-purple-400 placeholder-purple-300 transition-all text-sm md:text-base"
           />
           <button
             type="submit"
             disabled={disabled || isLoading || !input.trim()}
-            className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="w-full md:w-auto bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 md:px-8 rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg active:shadow-sm transform hover:-translate-y-0.5 active:translate-y-0 touch-manipulation"
           >
             {isLoading ? "..." : "Send"}
           </button>
