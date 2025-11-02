@@ -15,6 +15,8 @@ logger = setup_logger(__name__)
 
 LLMProvider = Literal["openai", "anthropic"]
 
+CLAUDE_MODEL_NAME = "claude-3-5-haiku-latest"
+
 
 class LLMClient:
     """Unified LLM client that abstracts OpenAI and Anthropic."""
@@ -58,11 +60,12 @@ class LLMClient:
                 if not settings.anthropic_api_key:
                     raise LLMProviderError("Anthropic API key not configured")
 
-                logger.info("Initializing Anthropic model (claude-3-5-sonnet)")
+                logger.info(f"Initializing Anthropic model ({CLAUDE_MODEL_NAME})")
                 return ChatAnthropic(
-                    model="claude-3-5-sonnet-20241022",
-                    temperature=0.7,
+                    model=CLAUDE_MODEL_NAME,
+                    temperature=0.1,
                     api_key=settings.anthropic_api_key,
+                    timeout=60,
                 )
 
             else:
@@ -169,7 +172,7 @@ class LLMClient:
         if self.provider == "openai":
             return "gpt-4"
         elif self.provider == "anthropic":
-            return "claude-3-5-sonnet-20241022"
+            return CLAUDE_MODEL_NAME
         return "unknown"
 
 
