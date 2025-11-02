@@ -5,11 +5,11 @@ import { useState } from "react";
 interface VideoInputProps {
   onSubmit: (urls: string[], provider: "openai" | "anthropic") => void;
   isLoading: boolean;
+  title?: string;
 }
 
-export default function VideoInput({ onSubmit, isLoading }: VideoInputProps) {
+export default function VideoInput({ onSubmit, isLoading, title = "Add YouTube Videos" }: VideoInputProps) {
   const [urls, setUrls] = useState("");
-  const [provider, setProvider] = useState<"openai" | "anthropic">("openai");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,16 +19,21 @@ export default function VideoInput({ onSubmit, isLoading }: VideoInputProps) {
       .filter((url) => url.length > 0);
 
     if (urlList.length > 0) {
-      onSubmit(urlList, provider);
+      onSubmit(urlList, "anthropic");
     }
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Add YouTube Videos</h2>
+    <div className="w-full max-w-full md:max-w-2xl mx-auto p-4 md:p-6 lg:p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100">
+      <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-purple-900">
+        {title}
+      </h2>
       <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="urls" className="block text-sm font-medium mb-2">
+        <div className="mb-4 md:mb-5">
+          <label
+            htmlFor="urls"
+            className="block text-sm font-medium mb-2 text-purple-800"
+          >
             YouTube URLs (one per line, max 10)
           </label>
           <textarea
@@ -36,49 +41,19 @@ export default function VideoInput({ onSubmit, isLoading }: VideoInputProps) {
             value={urls}
             onChange={(e) => setUrls(e.target.value)}
             placeholder="https://www.youtube.com/watch?v=..."
-            className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-24 md:h-32 lg:h-40 px-3 md:px-4 py-2 md:py-3 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all placeholder-purple-300 text-purple-900 text-sm md:text-base"
             disabled={isLoading}
           />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">LLM Provider</label>
-          <div className="flex gap-4">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                value="openai"
-                checked={provider === "openai"}
-                onChange={(e) =>
-                  setProvider(e.target.value as "openai" | "anthropic")
-                }
-                disabled={isLoading}
-                className="mr-2"
-              />
-              OpenAI
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                value="anthropic"
-                checked={provider === "anthropic"}
-                onChange={(e) =>
-                  setProvider(e.target.value as "openai" | "anthropic")
-                }
-                disabled={isLoading}
-                className="mr-2"
-              />
-              Anthropic
-            </label>
-          </div>
         </div>
 
         <button
           type="submit"
           disabled={isLoading || urls.trim().length === 0}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 md:py-3 px-6 rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg active:shadow-sm transform hover:-translate-y-0.5 active:translate-y-0 touch-manipulation"
         >
-          {isLoading ? "Processing..." : "Extract Places"}
+          {isLoading
+            ? "Give me a minute to process the videos..."
+            : "Extract Places"}
         </button>
       </form>
     </div>
