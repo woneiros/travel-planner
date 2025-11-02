@@ -68,7 +68,7 @@ export default function ChatInterface({
                 : "Ask about places, restaurants, etc..."
             }
             disabled={disabled || isLoading}
-            className="flex-1 px-3 md:px-4 py-3 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent disabled:bg-purple-50 disabled:text-purple-400 placeholder-purple-300 transition-all text-sm md:text-base"
+            className="flex-1 px-3 md:px-4 py-3 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent disabled:bg-purple-50 disabled:text-purple-400 placeholder-purple-300 text-purple-900 transition-all text-sm md:text-base"
           />
           <button
             type="submit"

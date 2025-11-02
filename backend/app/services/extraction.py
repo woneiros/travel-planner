@@ -18,7 +18,7 @@ class ExtractedPlace(BaseModel):
     """Schema for a single extracted place."""
 
     name: str = Field(description="Name of the place as mentioned in the video")
-    type: PlaceType = Field(description="Type of place: restaurant, attraction, hotel, activity, or other")
+    type: PlaceType = Field(description="Type of place: restaurant, attraction, hotel, activity, coffee_shop, shopping, or other")
     description: str = Field(description="Brief description of the place")
     timestamp_seconds: int | None = Field(
         default=None, description="Approximate timestamp in seconds where mentioned"
@@ -40,10 +40,19 @@ Your task is to identify all places mentioned in the transcript that have recomm
 
 For each place, extract:
 1. The exact name as mentioned
-2. The type (restaurant, attraction, hotel, activity, or other)
+2. The type - MUST be one of these exact values:
+   - "restaurant" for restaurants, bars, food spots
+   - "attraction" for tourist sites, landmarks, museums
+   - "hotel" for hotels, hostels, accommodations
+   - "activity" for tours, activities, experiences
+   - "coffee_shop" for cafes, coffee shops, bakeries (use "coffee_shop" not "cafe")
+   - "shopping" for shops, markets, malls
+   - "other" for anything else
 3. A brief description (1-2 sentences)
 4. What the creator said about it (their opinion, why they recommend it)
 5. Approximate timestamp if determinable from context (optional)
+
+IMPORTANT: Use exactly these category names. For cafes or coffee places, use "coffee_shop" not "cafe".
 
 Only include places that the creator actually recommends or has an opinion about.
 Skip places that are just mentioned in passing without any recommendation.

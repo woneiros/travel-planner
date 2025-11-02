@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { UserButton } from "@clerk/nextjs";
 import VideoInput from "@/components/VideoInput";
+import SourceVideos from "@/components/SourceVideos";
 import PlaceSummary from "@/components/PlaceSummary";
-import ChatInterface from "@/components/ChatInterface";
+import ChatDrawer from "@/components/ChatDrawer";
 import LoadingState from "@/components/LoadingState";
 import { useApi } from "@/lib/api-client";
 import type {
@@ -23,6 +24,7 @@ export default function Home() {
   const [isIngesting, setIsIngesting] = useState(false);
   const [isChatting, setIsChatting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showVideoInput, setShowVideoInput] = useState(true);
 
   const handleIngestVideos = async (
     urls: string[],
@@ -38,11 +40,14 @@ export default function Home() {
       });
 
       setSessionId(response.session_id);
-      setVideos(response.videos);
+      setVideos((prev) => [...prev, ...response.videos]);
 
       // Fetch full session to get places
       const session = await api.getSession(response.session_id);
       setPlaces(session.places);
+
+      // Hide video input after successful ingestion
+      setShowVideoInput(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to ingest videos");
       console.error("Ingestion error:", err);
@@ -123,24 +128,32 @@ export default function Home() {
           </div>
         )}
 
-        <div className="space-y-8">
-          <VideoInput onSubmit={handleIngestVideos} isLoading={isIngesting} />
+        <div className="space-y-6 md:space-y-8 pb-24">
+          {showVideoInput && (
+            <VideoInput onSubmit={handleIngestVideos} isLoading={isIngesting} />
+          )}
 
           {isIngesting && <LoadingState message="Processing videos..." />}
 
           {videos.length > 0 && (
             <>
-              <PlaceSummary videos={videos} places={places} />
-              <ChatInterface
-                messages={chatMessages}
-                onSendMessage={handleSendMessage}
-                isLoading={isChatting}
-                disabled={!sessionId}
+              <SourceVideos
+                videos={videos}
+                onExtractMore={() => setShowVideoInput(true)}
               />
+              <PlaceSummary places={places} />
             </>
           )}
         </div>
       </div>
+
+      {sessionId && (
+        <ChatDrawer
+          messages={chatMessages}
+          onSendMessage={handleSendMessage}
+          isLoading={isChatting}
+        />
+      )}
     </div>
   );
 }

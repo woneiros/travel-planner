@@ -1,14 +1,38 @@
 "use client";
 
-import type { Place, VideoSummary } from "@/lib/types";
+import { useState } from "react";
+import type { Place, PlaceType } from "@/lib/types";
 
 interface PlaceSummaryProps {
-  videos: VideoSummary[];
   places: Place[];
 }
 
-export default function PlaceSummary({ videos, places }: PlaceSummaryProps) {
-  if (videos.length === 0) {
+const categoryEmojis: Record<PlaceType, string> = {
+  restaurant: "🍽️",
+  attraction: "🎪",
+  hotel: "🛌",
+  activity: "🕺",
+  coffee_shop: "☕",
+  shopping: "🛍️",
+  other: "📍",
+};
+
+const categoryNames: Record<PlaceType, string> = {
+  restaurant: "Restaurants",
+  attraction: "Attractions",
+  hotel: "Hotels",
+  activity: "Activities",
+  coffee_shop: "Coffee Shops & Bakeries",
+  shopping: "Shopping",
+  other: "Other",
+};
+
+export default function PlaceSummary({ places }: PlaceSummaryProps) {
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
+    new Set()
+  );
+
+  if (places.length === 0) {
     return null;
   }
 
@@ -20,62 +44,83 @@ export default function PlaceSummary({ videos, places }: PlaceSummaryProps) {
     return acc;
   }, {} as Record<string, Place[]>);
 
+  // Sort categories alphabetically
+  const sortedCategories = Object.entries(placesByType).sort((a, b) =>
+    a[0].localeCompare(b[0])
+  );
+
+  const toggleCategory = (type: string) => {
+    const newExpanded = new Set(expandedCategories);
+    if (newExpanded.has(type)) {
+      newExpanded.delete(type);
+    } else {
+      newExpanded.add(type);
+    }
+    setExpandedCategories(newExpanded);
+  };
+
   return (
     <div className="w-full max-w-full md:max-w-2xl lg:max-w-4xl mx-auto p-4 md:p-6 lg:p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100">
       <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-purple-900">
-        Extracted Places ({places.length})
+        📍 Extracted Places ({places.length})
       </h2>
 
-      <div className="mb-6 md:mb-8">
-        <h3 className="text-base md:text-lg font-semibold mb-2 md:mb-3 text-purple-800">
-          Source Videos
-        </h3>
-        <div className="space-y-2 md:space-y-3">
-          {videos.map((video) => (
-            <div
-              key={video.video_id}
-              className="p-3 md:p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100"
-            >
-              <p className="font-semibold text-purple-900 text-sm md:text-base">
-                {video.title}
-              </p>
-              <p className="text-xs md:text-sm text-purple-700 mt-1">
-                {video.summary}
-              </p>
-              <p className="text-xs text-purple-600 mt-2 font-medium">
-                {video.places_count} places found
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
+      <div className="space-y-3 md:space-y-4">
+        {sortedCategories.map(([type, typePlaces]) => {
+          const isExpanded = expandedCategories.has(type);
+          const placeType = type as PlaceType;
+          const emoji = categoryEmojis[placeType] || "📍";
+          const displayName = categoryNames[placeType] || type;
 
-      <div className="space-y-4 md:space-y-6">
-        {Object.entries(placesByType).map(([type, typePlaces]) => (
-          <div key={type}>
-            <h3 className="text-base md:text-lg font-semibold mb-2 md:mb-3 capitalize text-purple-800">
-              {type}s
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3">
-              {typePlaces.map((place) => (
-                <div
-                  key={place.id}
-                  className="p-3 md:p-4 border-2 border-purple-200 rounded-xl hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer active:bg-purple-100 touch-manipulation"
+          return (
+            <div key={type} className="border border-purple-200 rounded-xl overflow-hidden">
+              <button
+                onClick={() => toggleCategory(type)}
+                className="w-full flex items-center justify-between p-3 md:p-4 bg-purple-50/50 hover:bg-purple-50 transition-colors text-left"
+              >
+                <h3 className="text-base md:text-lg font-semibold text-purple-800">
+                  {emoji} {displayName} ({typePlaces.length})
+                </h3>
+                <svg
+                  className={`w-5 h-5 text-purple-600 transition-transform flex-shrink-0 ml-2 ${
+                    isExpanded ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <p className="font-semibold text-purple-900 text-sm md:text-base">
-                    {place.name}
-                  </p>
-                  <p className="text-xs md:text-sm text-purple-700 mt-1">
-                    {place.description}
-                  </p>
-                  <p className="text-xs text-purple-600 mt-2 italic">
-                    {place.mentioned_context}
-                  </p>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              {isExpanded && (
+                <div className="p-3 md:p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3 bg-white">
+                  {typePlaces.map((place) => (
+                    <div
+                      key={place.id}
+                      className="p-3 md:p-4 border-2 border-purple-200 rounded-xl hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer active:bg-purple-100 touch-manipulation"
+                    >
+                      <p className="font-semibold text-purple-900 text-sm md:text-base">
+                        {place.name}
+                      </p>
+                      <p className="text-xs md:text-sm text-purple-700 mt-1">
+                        {place.description}
+                      </p>
+                      <p className="text-xs text-purple-600 mt-2 italic">
+                        {place.mentioned_context}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

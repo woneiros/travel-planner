@@ -14,6 +14,8 @@ class PlaceType(str, Enum):
     ATTRACTION = "attraction"
     HOTEL = "hotel"
     ACTIVITY = "activity"
+    COFFEE_SHOP = "coffee_shop"
+    SHOPPING = "shopping"
     OTHER = "other"
 
 

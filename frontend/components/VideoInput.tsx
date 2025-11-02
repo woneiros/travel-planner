@@ -40,7 +40,7 @@ export default function VideoInput({ onSubmit, isLoading }: VideoInputProps) {
             value={urls}
             onChange={(e) => setUrls(e.target.value)}
             placeholder="https://www.youtube.com/watch?v=..."
-            className="w-full h-24 md:h-32 lg:h-40 px-3 md:px-4 py-2 md:py-3 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all placeholder-purple-300 text-sm md:text-base"
+            className="w-full h-24 md:h-32 lg:h-40 px-3 md:px-4 py-2 md:py-3 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all placeholder-purple-300 text-purple-900 text-sm md:text-base"
             disabled={isLoading}
           />
         </div>
@@ -51,7 +51,7 @@ export default function VideoInput({ onSubmit, isLoading }: VideoInputProps) {
           className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 md:py-3 px-6 rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg active:shadow-sm transform hover:-translate-y-0.5 active:translate-y-0 touch-manipulation"
         >
           {isLoading
-            ? "Give me few seconds to process the videos..."
+            ? "Give me a minute to process the videos..."
             : "Extract Places"}
         </button>
       </form>

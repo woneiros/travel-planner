@@ -2,7 +2,7 @@
  * TypeScript types for the Travel Planner API
  */
 
-export type PlaceType = "restaurant" | "attraction" | "hotel" | "activity" | "other";
+export type PlaceType = "restaurant" | "attraction" | "hotel" | "activity" | "coffee_shop" | "shopping" | "other";
 
 export interface Place {
   id: string;
