@@ -11,6 +11,7 @@ frontend/.next/
 frontend/.env.local
 
 # General
+**.env
 .DS_Store
 *.log
 .llm/
