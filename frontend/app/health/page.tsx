@@ -1,6 +1,7 @@
 export default function Health() {
-  return new Response(JSON.stringify({ status: "healthy" }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+  return (
+    <div>
+      <h1>OK</h1>
+    </div>
+  );
 }
