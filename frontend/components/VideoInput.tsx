@@ -5,9 +5,10 @@ import { useState } from "react";
 interface VideoInputProps {
   onSubmit: (urls: string[], provider: "openai" | "anthropic") => void;
   isLoading: boolean;
+  title?: string;
 }
 
-export default function VideoInput({ onSubmit, isLoading }: VideoInputProps) {
+export default function VideoInput({ onSubmit, isLoading, title = "Add YouTube Videos" }: VideoInputProps) {
   const [urls, setUrls] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -25,7 +26,7 @@ export default function VideoInput({ onSubmit, isLoading }: VideoInputProps) {
   return (
     <div className="w-full max-w-full md:max-w-2xl mx-auto p-4 md:p-6 lg:p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100">
       <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-purple-900">
-        Add YouTube Videos
+        {title}
       </h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-4 md:mb-5">

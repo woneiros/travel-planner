@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { Place, PlaceType } from "@/lib/types";
+import type { Place, PlaceType, VideoSummary } from "@/lib/types";
 
 interface PlaceSummaryProps {
   places: Place[];
+  videos: VideoSummary[];
 }
 
 const categoryEmojis: Record<PlaceType, string> = {
@@ -27,7 +28,7 @@ const categoryNames: Record<PlaceType, string> = {
   other: "Other",
 };
 
-export default function PlaceSummary({ places }: PlaceSummaryProps) {
+export default function PlaceSummary({ places, videos }: PlaceSummaryProps) {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set()
   );
@@ -35,6 +36,11 @@ export default function PlaceSummary({ places }: PlaceSummaryProps) {
   if (places.length === 0) {
     return null;
   }
+
+  // Create video ID to title mapping
+  const videoMap = Object.fromEntries(
+    videos.map(v => [v.video_id, v.title])
+  );
 
   const placesByType = places.reduce((acc, place) => {
     if (!acc[place.type]) {
@@ -114,6 +120,13 @@ export default function PlaceSummary({ places }: PlaceSummaryProps) {
                       <p className="text-xs text-purple-600 mt-2 italic">
                         {place.mentioned_context}
                       </p>
+                      {place.video_id && videoMap[place.video_id] && (
+                        <div className="mt-2 inline-block px-2 py-1 bg-purple-100/70 border border-purple-200 rounded-lg">
+                          <p className="text-xs text-purple-700 font-medium">
+                            📹 {videoMap[place.video_id]}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

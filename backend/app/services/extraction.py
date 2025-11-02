@@ -32,11 +32,16 @@ class PlaceExtractionResult(BaseModel):
     """Schema for extraction result containing multiple places."""
 
     places: list[ExtractedPlace] = Field(description="List of extracted places")
+    suggested_title: str = Field(
+        description="A short, human-readable 3-5 word title for this video based on its content"
+    )
 
 
 EXTRACTION_SYSTEM_PROMPT = """You are an expert at analyzing travel video transcripts and extracting place recommendations.
 
-Your task is to identify all places mentioned in the transcript that have recommendations or opinions from the creator.
+Your task is to:
+1. Create a short, catchy 3-5 word title for this video based on its content (e.g., "Tokyo Street Food Guide" or "Hidden Cafes in Paris")
+2. Identify all places mentioned in the transcript that have recommendations or opinions from the creator
 
 For each place, extract:
 1. The exact name as mentioned
@@ -71,7 +76,9 @@ Be engaging and informative."""
 
 
 @observe()
-async def extract_places_from_video(video: Video, llm_client: LLMClient) -> list[Place]:
+async def extract_places_from_video(
+    video: Video, llm_client: LLMClient
+) -> tuple[list[Place], str]:
     """
     Extract places from a video transcript using LLM.
 
@@ -80,7 +87,7 @@ async def extract_places_from_video(video: Video, llm_client: LLMClient) -> list
         llm_client: Configured LLM client
 
     Returns:
-        List of extracted Place objects
+        Tuple of (list of extracted Place objects, suggested video title)
 
     Raises:
         ExtractionError: If extraction fails
@@ -105,8 +112,11 @@ Extract all recommended places from this travel video transcript."""
                 {"role": "user", "content": user_prompt},
             ]
 
-            # Use structured output to get places
+            # Use structured output to get places and suggested title
             result = await llm_client.invoke_structured(messages, PlaceExtractionResult)
+
+            # Get suggested title
+            suggested_title = result.get("suggested_title", f"Video {video.video_id}")
 
             # Convert to Place models with video_id
             places = [
@@ -122,9 +132,13 @@ Extract all recommended places from this travel video transcript."""
             ]
 
             span.set_attribute("places.extracted", len(places))
-            logger.info(f"Extracted {len(places)} places from video {video.video_id}")
+            span.set_attribute("suggested_title", suggested_title)
+            logger.info(
+                f"Extracted {len(places)} places from video {video.video_id}, "
+                f"suggested title: {suggested_title}"
+            )
 
-            return places
+            return places, suggested_title
 
         except Exception as e:
             error_msg = f"Failed to extract places from video {video.video_id}: {str(e)}"

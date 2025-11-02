@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { UserButton } from "@clerk/nextjs";
-import VideoInput from "@/components/VideoInput";
 import SourceVideos from "@/components/SourceVideos";
 import PlaceSummary from "@/components/PlaceSummary";
 import ChatDrawer from "@/components/ChatDrawer";
@@ -24,7 +23,6 @@ export default function Home() {
   const [isIngesting, setIsIngesting] = useState(false);
   const [isChatting, setIsChatting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showVideoInput, setShowVideoInput] = useState(true);
 
   const handleIngestVideos = async (
     urls: string[],
@@ -45,9 +43,6 @@ export default function Home() {
       // Fetch full session to get places
       const session = await api.getSession(response.session_id);
       setPlaces(session.places);
-
-      // Hide video input after successful ingestion
-      setShowVideoInput(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to ingest videos");
       console.error("Ingestion error:", err);
@@ -129,21 +124,15 @@ export default function Home() {
         )}
 
         <div className="space-y-6 md:space-y-8 pb-24">
-          {showVideoInput && (
-            <VideoInput onSubmit={handleIngestVideos} isLoading={isIngesting} />
-          )}
+          <SourceVideos
+            videos={videos}
+            onSubmit={handleIngestVideos}
+            isLoading={isIngesting}
+          />
 
           {isIngesting && <LoadingState message="Processing videos..." />}
 
-          {videos.length > 0 && (
-            <>
-              <SourceVideos
-                videos={videos}
-                onExtractMore={() => setShowVideoInput(true)}
-              />
-              <PlaceSummary places={places} />
-            </>
-          )}
+          {videos.length > 0 && <PlaceSummary places={places} videos={videos} />}
         </div>
       </div>
 

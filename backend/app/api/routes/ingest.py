@@ -106,10 +106,13 @@ async def ingest_videos(request: IngestRequest, current_user: CurrentUser):
                     video = await process_video(url)
                     session.videos.append(video)
 
-                    # Extract places
-                    places = await extract_places_from_video(video, llm_client)
+                    # Extract places and get suggested title
+                    places, suggested_title = await extract_places_from_video(video, llm_client)
                     all_places.extend(places)
                     session.places.extend(places)
+
+                    # Use suggested title from LLM instead of placeholder
+                    video.title = suggested_title
 
                     # Generate summary
                     summary = await generate_video_summary(video, places, llm_client)
@@ -117,7 +120,7 @@ async def ingest_videos(request: IngestRequest, current_user: CurrentUser):
                     # Create video summary
                     video_summary = VideoSummary(
                         video_id=video.video_id,
-                        title=video.title,
+                        title=suggested_title,
                         summary=summary,
                         places_count=len(places),
                     )
