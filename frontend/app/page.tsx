@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { UserButton } from "@clerk/nextjs";
 import SourceVideos from "@/components/SourceVideos";
 import PlaceSummary from "@/components/PlaceSummary";
@@ -102,9 +103,13 @@ export default function Home() {
             <UserButton afterSignOutUrl="/sign-in" />
           </div>
           <div className="flex items-center">
-            <img
+            <Image
               src="/travelplanner_logo.svg"
               alt="Travel Planner Logo"
+              width={112}
+              height={112}
+              priority
+              unoptimized
               className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 flex-shrink-0"
             />
             <h1 className="pr-4 md:pr-6 text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent leading-tight">
