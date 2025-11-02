@@ -101,13 +101,13 @@ export default function Home() {
           <div className="absolute top-0 right-0">
             <UserButton afterSignOutUrl="/sign-in" />
           </div>
-          <div className="flex items-center gap-4 md:gap-5">
+          <div className="flex items-center">
             <img
               src="/travelplanner_logo.svg"
               alt="Travel Planner Logo"
               className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 flex-shrink-0"
             />
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent leading-tight">
+            <h1 className="pr-4 md:pr-6 text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent leading-tight">
               Travel Planner
             </h1>
           </div>
@@ -132,7 +132,9 @@ export default function Home() {
 
           {isIngesting && <LoadingState message="Processing videos..." />}
 
-          {videos.length > 0 && <PlaceSummary places={places} videos={videos} />}
+          {videos.length > 0 && (
+            <PlaceSummary places={places} videos={videos} />
+          )}
         </div>
       </div>
 
