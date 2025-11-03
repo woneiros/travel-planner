@@ -19,6 +19,11 @@ class TestExtractVideoId:
         url = "https://youtu.be/dQw4w9WgXcQ"
         assert extract_video_id(url) == "dQw4w9WgXcQ"
 
+    def test_extract_from_short_url_with_params(self):
+        """Test extracting from youtu.be short URL."""
+        url = "https://youtu.be/dGHezUZ51lQ?si=EcqzJFv5hf--fWDD"
+        assert extract_video_id(url) == "dGHezUZ51lQ"
+
     def test_extract_from_embed_url(self):
         """Test extracting from embed URL."""
         url = "https://www.youtube.com/embed/dQw4w9WgXcQ"
