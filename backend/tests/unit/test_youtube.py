@@ -3,7 +3,6 @@
 import pytest
 
 from app.services.youtube import extract_video_id
-from app.utils.errors import YouTubeTranscriptError
 
 
 class TestExtractVideoId:

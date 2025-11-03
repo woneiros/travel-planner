@@ -4,7 +4,6 @@ from typing import Any
 
 from langchain_core.tools import tool
 
-from app.models.chat import ChatMessage
 from app.models.place import Place, PlaceType
 from app.models.session import Session
 from app.observability.langfuse_client import observe
@@ -97,7 +96,8 @@ def create_get_transcript_tool(session: Session):
     return get_video_transcript
 
 
-CHAT_SYSTEM_PROMPT = """You are a helpful travel planning assistant. You have access to places and recommendations extracted from {num_videos} YouTube travel video(s).
+CHAT_SYSTEM_PROMPT = """You are a helpful travel planning assistant.
+You have access to places and recommendations extracted from {num_videos} YouTube travel video(s).
 
 Your tools:
 - search_places: Find places by name, type (restaurant/attraction/hotel/activity), or keywords
@@ -107,7 +107,8 @@ Guidelines:
 1. Be concise and helpful in your responses
 2. Always cite which video your recommendations come from
 3. Use the search_places tool to find relevant places for user queries
-4. If asked about specific details not in the place data, use get_video_transcript to find more context
+4. If asked about specific details not in the place data, use get_video_transcript to find
+   more context
 5. Group similar recommendations together
 6. Provide practical travel advice based on the extracted information
 

@@ -1,6 +1,5 @@
 """Tests for session management."""
 
-from datetime import datetime, timedelta
 
 import pytest
 

@@ -15,14 +15,15 @@ To run only the LLM test:
 """
 
 import os
-import pytest
 from datetime import datetime
 
-from app.services.youtube import extract_video_id, fetch_transcript
+import pytest
+
+from app.models.place import Place, PlaceType
+from app.models.video import Video
 from app.services.extraction import extract_places_from_video
 from app.services.llm_client import create_llm_client
-from app.models.video import Video
-from app.models.place import Place, PlaceType
+from app.services.youtube import extract_video_id, fetch_transcript
 
 
 @pytest.fixture(autouse=True)
@@ -70,7 +71,8 @@ async def test_youtube_transcript_extraction_e2e():
 @pytest.mark.asyncio
 @pytest.mark.skipif(
     os.getenv("RUN_LLM_TESTS") != "true",
-    reason="Skipped by default to avoid API costs. Run with: RUN_LLM_TESTS=true pytest tests/test_e2e.py"
+    reason="Skipped by default to avoid API costs. "
+    "Run with: RUN_LLM_TESTS=true pytest tests/test_e2e.py",
 )
 async def test_place_extraction_from_transcript_e2e():
     """
@@ -156,5 +158,5 @@ async def test_place_extraction_from_transcript_e2e():
     assert any(pt in [PlaceType.RESTAURANT, PlaceType.COFFEE_SHOP] for pt in place_types), \
         "Should identify at least one restaurant or coffee shop"
 
-    print(f"\n✓ All place objects have valid structure")
+    print("\n✓ All place objects have valid structure")
     print(f"✓ Place types found: {set(pt.value for pt in place_types)}")
