@@ -1,7 +1,6 @@
 """YouTube transcript and metadata fetching service."""
 
 import re
-from typing import Optional
 from urllib.parse import parse_qs, urlparse
 
 from youtube_transcript_api import YouTubeTranscriptApi

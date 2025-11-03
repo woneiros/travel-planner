@@ -40,7 +40,8 @@ def mock_llm_client():
                     "timestamp_seconds": 120,
                     "mentioned_context": "The food was incredible",
                 }
-            ]
+            ],
+            "suggested_title": "Paris Food Tour"
         }
     )
 
@@ -50,13 +51,14 @@ def mock_llm_client():
 @pytest.mark.asyncio
 async def test_extract_places_from_video(sample_video, mock_llm_client):
     """Test extracting places from a video."""
-    places = await extract_places_from_video(sample_video, mock_llm_client)
+    places, suggested_title = await extract_places_from_video(sample_video, mock_llm_client)
 
     assert len(places) == 1
     assert places[0].name == "Le Bistro"
     assert places[0].type == PlaceType.RESTAURANT
     assert places[0].video_id == "test123"
     assert places[0].timestamp_seconds == 120
+    assert suggested_title == "Paris Food Tour"
 
     # Verify LLM was called
     mock_llm_client.invoke_structured.assert_called_once()
@@ -83,14 +85,16 @@ async def test_extract_places_with_multiple_results(sample_video, mock_llm_clien
                     "timestamp_seconds": 300,
                     "mentioned_context": "Must visit",
                 },
-            ]
+            ],
+            "suggested_title": "Best of Paris"
         }
     )
 
-    places = await extract_places_from_video(sample_video, mock_llm_client)
+    places, suggested_title = await extract_places_from_video(sample_video, mock_llm_client)
 
     assert len(places) == 2
     assert places[0].name == "Le Bistro"
     assert places[1].name == "Eiffel Tower"
     assert places[0].type == PlaceType.RESTAURANT
     assert places[1].type == PlaceType.ATTRACTION
+    assert suggested_title == "Best of Paris"

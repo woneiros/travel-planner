@@ -18,7 +18,10 @@ class ExtractedPlace(BaseModel):
     """Schema for a single extracted place."""
 
     name: str = Field(description="Name of the place as mentioned in the video")
-    type: PlaceType = Field(description="Type of place: restaurant, attraction, hotel, activity, coffee_shop, shopping, or other")
+    type: PlaceType = Field(
+        description="Type of place: restaurant, attraction, hotel, activity, "
+        "coffee_shop, shopping, or other"
+    )
     description: str = Field(description="Brief description of the place")
     timestamp_seconds: int | None = Field(
         default=None, description="Approximate timestamp in seconds where mentioned"
@@ -37,11 +40,14 @@ class PlaceExtractionResult(BaseModel):
     )
 
 
-EXTRACTION_SYSTEM_PROMPT = """You are an expert at analyzing travel video transcripts and extracting place recommendations.
+EXTRACTION_SYSTEM_PROMPT = """You are an expert at analyzing travel video transcripts and
+extracting place recommendations.
 
 Your task is to:
-1. Create a short, catchy 3-5 word title for this video based on its content (e.g., "Tokyo Street Food Guide" or "Hidden Cafes in Paris")
-2. Identify all places mentioned in the transcript that have recommendations or opinions from the creator
+1. Create a short, catchy 3-5 word title for this video based on its content
+   (e.g., "Tokyo Street Food Guide" or "Hidden Cafes in Paris")
+2. Identify all places mentioned in the transcript that have recommendations or opinions
+   from the creator
 
 For each place, extract:
 1. The exact name as mentioned
@@ -57,7 +63,8 @@ For each place, extract:
 4. What the creator said about it (their opinion, why they recommend it)
 5. Approximate timestamp if determinable from context (optional)
 
-IMPORTANT: Use exactly these category names. For cafes or coffee places, use "coffee_shop" not "cafe".
+IMPORTANT: Use exactly these category names.
+For cafes or coffee places, use "coffee_shop" not "cafe".
 
 Only include places that the creator actually recommends or has an opinion about.
 Skip places that are just mentioned in passing without any recommendation.
