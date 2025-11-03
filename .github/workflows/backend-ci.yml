@@ -45,5 +45,6 @@ jobs:
       - name: Run tests
         run: uv run pytest tests/ -v
         env:
-          # Ensure LLM tests are skipped (they require RUN_LLM_TESTS=true)
+          # Skip YouTube test (IP blocks) and LLM test (API costs) in CI
+          CI: 'true'
           RUN_LLM_TESTS: 'false'

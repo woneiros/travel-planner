@@ -4,10 +4,18 @@ End-to-end tests for the travel planner application.
 These tests verify the complete flow without mocks, testing real API integrations.
 Langfuse logging/tracing is disabled to avoid polluting test output.
 
-TEST 1 (YouTube transcript extraction): Always runs
-TEST 2 (LLM place extraction): Skipped by default to prevent accidental API costs
+TEST 1 (YouTube transcript extraction):
+    - Runs by default locally
+    - Skipped in CI (YouTube blocks CI runner IPs)
 
-To run all tests including LLM tests:
+TEST 2 (LLM place extraction):
+    - Skipped by default everywhere to prevent accidental API costs
+    - Requires explicit opt-in with RUN_LLM_TESTS=true
+
+To run locally (TEST 1 runs, TEST 2 skipped):
+    pytest tests/test_e2e.py -v
+
+To run all tests including LLM test:
     RUN_LLM_TESTS=true pytest tests/test_e2e.py -v
 
 To run only the LLM test:
@@ -35,6 +43,10 @@ def disable_langfuse(monkeypatch):
 
 # TEST 1: Given a YouTube URL, extract the transcript correctly
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    os.getenv("CI") == "true",
+    reason="Skipped in CI due to YouTube IP blocks. Runs by default locally.",
+)
 async def test_youtube_transcript_extraction_e2e():
     """
     E2E test: Extract transcript from a real YouTube URL.
@@ -45,6 +57,7 @@ async def test_youtube_transcript_extraction_e2e():
     3. Verify transcript is returned correctly
 
     No mocks are used - this tests the real YouTube API integration.
+    Skipped in CI environments due to YouTube blocking CI runner IPs.
     """
     # Arrange
     url = "https://www.youtube.com/watch?v=549amskpMdc"
