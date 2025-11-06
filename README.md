@@ -1,4 +1,4 @@
-# Travel Planner AI Agent
+# Treki - Your Travel Planner AI Agent
 
 AI-powered travel planner that extracts recommendations from YouTube videos and provides an interactive chat interface. Built with FastAPI, Next.js, LangChain, and observability tools (OpenTelemetry + Langfuse).
 
@@ -36,6 +36,7 @@ travel-planner/
 ## Tech Stack
 
 ### Backend
+
 - **Python 3.11+** with `uv` package manager
 - **FastAPI** for REST API
 - **LangChain** for LLM abstraction (OpenAI + Anthropic)
@@ -44,6 +45,7 @@ travel-planner/
 - **pytest** for testing
 
 ### Frontend
+
 - **Next.js 14+** with App Router
 - **TypeScript** + **React 19**
 - **Tailwind CSS** for styling
@@ -105,11 +107,13 @@ Frontend will be available at `http://localhost:3000`
 1. **Start both servers** (backend on :8000, frontend on :3000)
 
 2. **Add YouTube URLs**:
+
    - Enter 1-10 YouTube travel video URLs
    - Select LLM provider (OpenAI or Anthropic)
    - Click "Extract Places"
 
 3. **View Results**:
+
    - See video summaries
    - Browse extracted places by type (restaurants, attractions, hotels, activities)
 
@@ -121,9 +125,11 @@ Frontend will be available at `http://localhost:3000`
 ## API Endpoints
 
 ### POST /api/ingest
+
 Ingest YouTube videos and extract places.
 
 **Request:**
+
 ```json
 {
   "video_urls": ["https://www.youtube.com/watch?v=VIDEO_ID"],
@@ -132,6 +138,7 @@ Ingest YouTube videos and extract places.
 ```
 
 **Response:**
+
 ```json
 {
   "session_id": "uuid",
@@ -142,9 +149,11 @@ Ingest YouTube videos and extract places.
 ```
 
 ### POST /api/chat
+
 Chat with the AI agent.
 
 **Request:**
+
 ```json
 {
   "session_id": "uuid",
@@ -154,6 +163,7 @@ Chat with the AI agent.
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Based on the videos...",
@@ -163,14 +173,17 @@ Chat with the AI agent.
 ```
 
 ### GET /api/session/{session_id}
+
 Retrieve session data (videos, places, chat history).
 
 ### DELETE /api/session/{session_id}
+
 Delete a session.
 
 ## Environment Variables
 
 ### Backend (.env)
+
 ```bash
 # LLM API Keys (at least one required)
 OPENAI_API_KEY=sk-...
@@ -188,6 +201,7 @@ SESSION_TTL_SECONDS=3600
 ```
 
 ### Frontend (.env.local)
+
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```

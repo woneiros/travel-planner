@@ -96,27 +96,24 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-100 py-4 md:py-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#FDF8F1] via-[#F6F0E8] to-[#EDE7DF] py-4 md:py-8">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         <header className="relative flex flex-col items-center mb-8 md:mb-10 gap-4 text-center">
           <div className="absolute top-0 right-0">
             <UserButton afterSignOutUrl="/sign-in" />
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center gap-2 md:gap-3">
             <Image
-              src="/travelplanner_logo.svg"
-              alt="Travel Planner Logo"
-              width={112}
-              height={112}
+              src="/Treki_Logo_Transparent.svg"
+              alt="Treki Logo"
+              width={200}
+              height={90}
               priority
               unoptimized
-              className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 flex-shrink-0"
+              className="h-20 w-auto md:h-24 lg:h-28 flex-shrink-0"
             />
-            <h1 className="pr-4 md:pr-6 text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent leading-tight">
-              Travel Planner
-            </h1>
           </div>
-          <p className="text-purple-700 text-base md:text-lg">
+          <p className="text-[#4A4138] text-base md:text-lg max-w-2xl">
             Extract travel recommendations from YouTube videos and plan your
             trip
           </p>
