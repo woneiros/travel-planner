@@ -7,8 +7,18 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
-  // Bypass auth in test environment (only for E2E tests)
-  if (process.env.BYPASS_AUTH === 'true') {
+  // Bypass auth ONLY in development/test environments
+  // NEVER bypass in production for security
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  const bypassAuth = process.env.BYPASS_AUTH === 'true';
+
+  if (bypassAuth && !isDevelopment) {
+    // Security: log and ignore bypass attempt in production
+    console.error('⚠️  SECURITY: Attempted to bypass auth in production. This is blocked.');
+  }
+
+  // Only allow bypass in non-production environments
+  if (bypassAuth && isDevelopment) {
     return;
   }
 

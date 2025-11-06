@@ -52,10 +52,16 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: process.env.CI ? undefined : {
-    command: 'pnpm dev',
+  webServer: {
+    // In CI: use production build, locally: use dev server
+    command: process.env.CI ? 'pnpm start' : 'pnpm dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+    env: {
+      // Explicitly set NODE_ENV to allow auth bypass in tests
+      NODE_ENV: process.env.CI ? 'development' : 'development',
+      PORT: '3000',
+    },
   },
 });
