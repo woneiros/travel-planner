@@ -6,8 +6,8 @@ export const metadata: Metadata = {
   title: "Treki - Your Travel Planner AI Agent",
   description: "Plan your travels from YouTube recommendations",
   icons: {
-    icon: "/travelplanner_logo.svg",
-    apple: "/travelplanner_logo.svg",
+    icon: "/Favicon.svg",
+    apple: "/Favicon.png",
   },
 };
 

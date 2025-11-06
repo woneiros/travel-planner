@@ -66,8 +66,8 @@ export default function PlaceSummary({ places, videos }: PlaceSummaryProps) {
   };
 
   return (
-    <div className="w-full max-w-full md:max-w-2xl lg:max-w-4xl mx-auto p-4 md:p-6 lg:p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100">
-      <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-purple-900">
+    <div className="w-full max-w-full md:max-w-2xl lg:max-w-4xl mx-auto p-4 md:p-6 lg:p-8 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#E0D8CC]">
+      <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-[#121212]">
         📍 Extracted Places ({places.length})
       </h2>
 
@@ -79,16 +79,16 @@ export default function PlaceSummary({ places, videos }: PlaceSummaryProps) {
           const displayName = categoryNames[placeType] || type;
 
           return (
-            <div key={type} className="border border-purple-200 rounded-xl overflow-hidden">
+            <div key={type} className="border border-[#E0D8CC] rounded-xl overflow-hidden">
               <button
                 onClick={() => toggleCategory(type)}
-                className="w-full flex items-center justify-between p-3 md:p-4 bg-purple-50/50 hover:bg-purple-50 transition-colors text-left"
+                className="w-full flex items-center justify-between p-3 md:p-4 bg-[#F6F0E8]/50 hover:bg-[#F6F0E8] transition-colors text-left"
               >
-                <h3 className="text-base md:text-lg font-semibold text-purple-800">
+                <h3 className="text-base md:text-lg font-semibold text-[#4A4138]">
                   {emoji} {displayName} ({typePlaces.length})
                 </h3>
                 <svg
-                  className={`w-5 h-5 text-purple-600 transition-transform flex-shrink-0 ml-2 ${
+                  className={`w-5 h-5 text-[#4AA83D] transition-transform flex-shrink-0 ml-2 ${
                     isExpanded ? "rotate-180" : ""
                   }`}
                   fill="none"
@@ -109,20 +109,20 @@ export default function PlaceSummary({ places, videos }: PlaceSummaryProps) {
                   {typePlaces.map((place) => (
                     <div
                       key={place.id}
-                      className="p-3 md:p-4 border-2 border-purple-200 rounded-xl hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer active:bg-purple-100 touch-manipulation"
+                      className="p-3 md:p-4 border-2 border-[#E0D8CC] rounded-xl hover:bg-[#F6F0E8] hover:border-[#9AF18A] transition-all cursor-pointer active:bg-[#EDE7DF] touch-manipulation"
                     >
-                      <p className="font-semibold text-purple-900 text-sm md:text-base">
+                      <p className="font-semibold text-[#121212] text-sm md:text-base">
                         {place.name}
                       </p>
-                      <p className="text-xs md:text-sm text-purple-700 mt-1">
+                      <p className="text-xs md:text-sm text-[#4A4138] mt-1">
                         {place.description}
                       </p>
-                      <p className="text-xs text-purple-600 mt-2 italic">
+                      <p className="text-xs text-[#6C6256] mt-2 italic">
                         {place.mentioned_context}
                       </p>
                       {place.video_id && videoMap[place.video_id] && (
-                        <div className="mt-2 inline-block px-2 py-1 bg-purple-100/70 border border-purple-200 rounded-lg">
-                          <p className="text-xs text-purple-700 font-medium">
+                        <div className="mt-2 inline-block px-2 py-1 bg-[#F6F0E8]/70 border border-[#E0D8CC] rounded-lg">
+                          <p className="text-xs text-[#4A4138] font-medium">
                             📹 {videoMap[place.video_id]}
                           </p>
                         </div>

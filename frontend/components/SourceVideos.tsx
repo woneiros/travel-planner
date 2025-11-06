@@ -34,17 +34,17 @@ export default function SourceVideos({
   }
 
   return (
-    <div className="w-full max-w-full md:max-w-2xl lg:max-w-4xl mx-auto p-4 md:p-6 lg:p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100">
+    <div className="w-full max-w-full md:max-w-2xl lg:max-w-4xl mx-auto p-4 md:p-6 lg:p-8 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#E0D8CC]">
       {/* Title with chevron - always visible and clickable */}
       <button
         onClick={() => setIsCardExpanded(!isCardExpanded)}
-        className="w-full flex items-center justify-between mb-4 text-left hover:bg-purple-50/50 -m-2 p-2 rounded-lg transition-colors"
+        className="w-full flex items-center justify-between mb-4 text-left hover:bg-[#F6F0E8]/50 -m-2 p-2 rounded-lg transition-colors"
       >
-        <h2 className="text-xl md:text-2xl font-bold text-purple-900">
+        <h2 className="text-xl md:text-2xl font-bold text-[#121212]">
           📼 Source Videos ({videos.length})
         </h2>
         <svg
-          className={`w-5 h-5 text-purple-600 transition-transform flex-shrink-0 ${
+          className={`w-5 h-5 text-[#4AA83D] transition-transform flex-shrink-0 ${
             isCardExpanded ? "rotate-180" : ""
           }`}
           fill="none"
@@ -67,7 +67,7 @@ export default function SourceVideos({
             setIsCardExpanded(true);
             setShowAddMoreForm(false);
           }}
-          className="w-full py-2 px-4 text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors border border-purple-200"
+          className="w-full py-2 px-4 text-sm font-medium text-[#4AA83D] hover:text-[#3A8430] hover:bg-[#F6F0E8] rounded-lg transition-colors border border-[#E0D8CC]"
         >
           + Extract more videos
         </button>
@@ -81,15 +81,15 @@ export default function SourceVideos({
             {videos.map((video) => (
               <div
                 key={video.video_id}
-                className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100"
+                className="p-3 bg-gradient-to-r from-[#FDF8F1] to-[#F6F0E8] rounded-xl border border-[#E0D8CC]"
               >
-                <p className="font-semibold text-purple-900 text-sm">
+                <p className="font-semibold text-[#121212] text-sm">
                   {video.title}
                 </p>
-                <p className="text-xs text-purple-700 mt-1">
+                <p className="text-xs text-[#4A4138] mt-1">
                   {video.summary}
                 </p>
-                <p className="text-xs text-purple-600 mt-1 font-medium">
+                <p className="text-xs text-[#4AA83D] mt-1 font-medium">
                   {video.places_count} places found
                 </p>
               </div>
@@ -100,7 +100,7 @@ export default function SourceVideos({
           {!showAddMoreForm && (
             <button
               onClick={() => setShowAddMoreForm(true)}
-              className="w-full py-2 px-4 text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors border border-purple-200"
+              className="w-full py-2 px-4 text-sm font-medium text-[#4AA83D] hover:text-[#3A8430] hover:bg-[#F6F0E8] rounded-lg transition-colors border border-[#E0D8CC]"
             >
               + Extract more videos
             </button>
@@ -108,7 +108,7 @@ export default function SourceVideos({
 
           {/* State 3: Show Add More form */}
           {showAddMoreForm && (
-            <div className="mt-4 pt-4 border-t border-purple-200">
+            <div className="mt-4 pt-4 border-t border-[#E0D8CC]">
               <VideoInput
                 onSubmit={onSubmit}
                 isLoading={isLoading}
