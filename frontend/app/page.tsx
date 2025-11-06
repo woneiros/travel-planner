@@ -113,7 +113,7 @@ export default function Home() {
               className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 flex-shrink-0"
             />
             <h1 className="pr-4 md:pr-6 text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent leading-tight">
-              Travel Planner
+              Treki
             </h1>
           </div>
           <p className="text-purple-700 text-base md:text-lg">

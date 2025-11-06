@@ -21,6 +21,7 @@ async def lifespan(app: FastAPI):
 
     # Start session manager
     from app.services.session_manager import get_session_manager
+
     session_manager = get_session_manager()
     await session_manager.start()
 
@@ -28,11 +29,11 @@ async def lifespan(app: FastAPI):
 
     # Stop session manager
     await session_manager.stop()
-    logger.info("Shutting down Travel Planner API")
+    logger.info("Shutting down Treki API")
 
 
 app = FastAPI(
-    title="Travel Planner API",
+    title="Treki API",
     description="AI-powered travel planning from YouTube videos",
     version="0.1.0",
     lifespan=lifespan,
@@ -46,6 +47,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Health check
 @app.get("/health")
