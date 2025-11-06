@@ -7,6 +7,11 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
+  // Bypass auth in test environment (only for E2E tests)
+  if (process.env.BYPASS_AUTH === 'true') {
+    return;
+  }
+
   if (!isPublicRoute(request)) {
     await auth.protect();
   }
