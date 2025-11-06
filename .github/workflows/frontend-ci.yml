@@ -56,9 +56,8 @@ jobs:
       - name: Build
         run: pnpm build
         env:
-          # Optional: Use real Clerk key if available in secrets
-          # If not present, ClerkProvider is skipped (auth bypassed via BYPASS_AUTH)
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY || '' }}
+          # Use Clerk dev/test publishable key from GitHub Secrets
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
 
       - name: Install Playwright Browsers
         run: npx playwright install chromium webkit --with-deps
@@ -66,12 +65,12 @@ jobs:
       - name: Run Playwright tests
         run: pnpm test
         env:
-          # Bypass auth for E2E tests
+          # Bypass auth for E2E tests (middleware skips Clerk checks)
           BYPASS_AUTH: 'true'
           # Mock backend URL (tests don't actually call backend)
           NEXT_PUBLIC_API_URL: 'http://localhost:8000'
-          # Optional: Use real Clerk key if available in secrets
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY || '' }}
+          # Use Clerk dev/test publishable key from GitHub Secrets
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
           # Set base URL for tests
           BASE_URL: 'http://localhost:3000'
           # CI flag

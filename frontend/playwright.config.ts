@@ -58,10 +58,5 @@ export default defineConfig({
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
-    env: {
-      // Explicitly set NODE_ENV to allow auth bypass in tests
-      NODE_ENV: process.env.CI ? 'development' : 'development',
-      PORT: '3000',
-    },
   },
 });
