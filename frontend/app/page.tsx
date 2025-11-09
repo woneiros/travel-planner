@@ -7,6 +7,7 @@ import SourceVideos from "@/components/SourceVideos";
 import PlaceSummary from "@/components/PlaceSummary";
 import ChatDrawer from "@/components/ChatDrawer";
 import LoadingState from "@/components/LoadingState";
+import GradientBackground from "@/components/GradientBackground";
 import { useApi } from "@/lib/api-client";
 import type {
   VideoSummary,
@@ -96,8 +97,10 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FDF8F1] via-[#F6F0E8] to-[#EDE7DF] py-4 md:py-8">
-      <div className="container mx-auto px-4 md:px-6 lg:px-8">
+    <>
+      <GradientBackground />
+      <div className="min-h-screen py-4 md:py-8">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
         <header className="relative flex flex-col items-center mb-8 md:mb-10 gap-4 text-center">
           <div className="absolute top-0 right-0">
             <UserButton />
@@ -140,13 +143,14 @@ export default function Home() {
         </div>
       </div>
 
-      {sessionId && (
-        <ChatDrawer
-          messages={chatMessages}
-          onSendMessage={handleSendMessage}
-          isLoading={isChatting}
-        />
-      )}
-    </div>
+        {sessionId && (
+          <ChatDrawer
+            messages={chatMessages}
+            onSendMessage={handleSendMessage}
+            isLoading={isChatting}
+          />
+        )}
+      </div>
+    </>
   );
 }
