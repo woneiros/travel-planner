@@ -1,5 +1,7 @@
 # Treki - Your Travel Planner AI Agent
 
+<img src="./docs/Treki_Logo_Color_Neutral%20BG.png" style="height: 150px"/>
+
 AI-powered travel planner that extracts recommendations from YouTube videos and provides an interactive chat interface. Built with FastAPI, Next.js, LangChain, and observability tools (OpenTelemetry + Langfuse).
 
 ## Features
@@ -122,131 +124,6 @@ Frontend will be available at `http://localhost:3000`
    - Agent uses tools to search places and provide recommendations
    - All responses cite source videos
 
-## API Endpoints
-
-### POST /api/ingest
-
-Ingest YouTube videos and extract places.
-
-**Request:**
-
-```json
-{
-  "video_urls": ["https://www.youtube.com/watch?v=VIDEO_ID"],
-  "llm_provider": "openai"
-}
-```
-
-**Response:**
-
-```json
-{
-  "session_id": "uuid",
-  "videos": [...],
-  "total_places": 12,
-  "processing_time_ms": 3500
-}
-```
-
-### POST /api/chat
-
-Chat with the AI agent.
-
-**Request:**
-
-```json
-{
-  "session_id": "uuid",
-  "message": "What are the best restaurants?",
-  "llm_provider": "openai"
-}
-```
-
-**Response:**
-
-```json
-{
-  "message": "Based on the videos...",
-  "places_referenced": ["place-id-1", "place-id-2"],
-  "sources": [...]
-}
-```
-
-### GET /api/session/{session_id}
-
-Retrieve session data (videos, places, chat history).
-
-### DELETE /api/session/{session_id}
-
-Delete a session.
-
-## Environment Variables
-
-### Backend (.env)
-
-```bash
-# LLM API Keys (at least one required)
-OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
-
-# Observability (optional)
-LANGFUSE_PUBLIC_KEY=pk-lf-...
-LANGFUSE_SECRET_KEY=sk-lf-...
-LANGFUSE_HOST=https://cloud.langfuse.com
-
-# Application
-ENVIRONMENT=development
-LOG_LEVEL=INFO
-SESSION_TTL_SECONDS=3600
-```
-
-### Frontend (.env.local)
-
-```bash
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-## Testing
-
-```bash
-cd backend
-pytest tests/ -v
-
-# Run specific test file
-pytest tests/test_youtube.py -v
-
-# Run with coverage
-pytest tests/ --cov=app
-```
-
-## Deployment (Railway)
-
-This project is configured for deployment on [Railway](https://railway.app).
-
-1. Create a new project on Railway
-2. Add two services:
-   - **Backend**: Point to `backend/` directory
-   - **Frontend**: Point to `frontend/` directory
-3. Set environment variables for each service
-4. Railway will auto-detect and deploy both services
-
-## Development Notes
-
-- **Session Storage**: Currently uses in-memory dict. Sessions expire after 1 hour of inactivity.
-- **YouTube Metadata**: MVP uses placeholder data. Integrate YouTube Data API v3 for real metadata.
-- **Observability**: Langfuse integration is simplified for MVP. See decorator in `observability/langfuse_client.py`.
-- **Tool Calling**: Chat agent uses LangChain's tool binding for place search and transcript retrieval.
-
-## Future Enhancements
-
-- Map visualization with place markers
-- Export itinerary to PDF/Google Maps
-- Persistent storage with PostgreSQL
-- WebSocket streaming for real-time chat
-- Multi-user support with authentication
-- A/B testing different prompts
-- Braintrust integration for evals
-
 ## Architecture
 
 ```
@@ -276,7 +153,3 @@ MIT
 ## Contributing
 
 PRs welcome! Please ensure tests pass before submitting.
-
----
-
-Built with Claude Code • [View Specification](.llm/SPEC_v0.md)

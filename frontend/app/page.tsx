@@ -100,7 +100,7 @@ export default function Home() {
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         <header className="relative flex flex-col items-center mb-8 md:mb-10 gap-4 text-center">
           <div className="absolute top-0 right-0">
-            <UserButton afterSignOutUrl="/sign-in" />
+            <UserButton />
           </div>
           <div className="flex items-center gap-2 md:gap-3">
             <Image
