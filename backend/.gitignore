@@ -1,0 +1,14 @@
+# Python
+**/__pycache__/
+**/.pytest_cache/
+.venv/
+.env
+**/*.py[cod]
+
+
+# General
+**.env
+.DS_Store
+*.log
+.llm/
+.claude/
