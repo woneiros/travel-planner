@@ -57,6 +57,10 @@ executor.type = "uv"
 cmd = "uvicorn app.main:app --reload"
 help = "Run the development server with auto-reload"
 
+[tool.poe.tasks.lint]
+cmd = "ruff check ."
+help = "Run the linter (add --fix to auto-fix issues)"
+
 [tool.poe.tasks.test]
 cmd = "pytest"
 help = "Run the test suite (disabled Langfuse tracing during tests)"

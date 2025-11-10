@@ -12,7 +12,6 @@ from youtube_transcript_api._errors import (
 
 from app.models.video import Video
 from app.observability.langfuse_client import observe
-from app.observability.tracing import tracer
 from app.utils.errors import YouTubeTranscriptError
 from app.utils.logger import setup_logger
 
