@@ -1,7 +1,7 @@
 """Video ingestion endpoints."""
 
 import time
-from typing import Literal
+from typing import Optional
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
@@ -19,14 +19,17 @@ logger = setup_logger(__name__)
 router = APIRouter()
 
 
+LLM_PROVIDER = "anthropic"
+
+
 class IngestRequest(BaseModel):
     """Request model for video ingestion."""
 
     video_urls: list[str] = Field(
         ..., min_length=1, max_length=10, description="1-10 YouTube URLs"
     )
-    llm_provider: Literal["openai", "anthropic"] = Field(
-        ..., description="LLM provider to use"
+    session_id: Optional[str] = Field(
+        default=None, description="Session ID from ingestion"
     )
 
     @field_validator("video_urls")
@@ -84,15 +87,15 @@ async def ingest_videos(request: IngestRequest, current_user: CurrentUser):
 
     try:
         # Create LLM client
-        llm_client = create_llm_client(request.llm_provider)
+        llm_client = create_llm_client(LLM_PROVIDER)
         logger.info(
             f"User {current_user['user_id']} starting ingestion of "
-            f"{len(request.video_urls)} videos using {request.llm_provider}"
+            f"{len(request.video_urls)} videos using {LLM_PROVIDER}"
         )
 
         # Create new session
         session_manager = get_session_manager()
-        session = session_manager.create_session()
+        session = session_manager.get_or_create_session(request.session_id)
 
         video_summaries = []
         all_places = []
