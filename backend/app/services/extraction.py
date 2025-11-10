@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 from app.models.place import Place, PlaceType
 from app.models.video import Video
 from app.observability.langfuse_client import observe
-from app.observability.tracing import tracer
 from app.services.llm_client import LLMClient
 from app.utils.errors import ExtractionError
 from app.utils.logger import setup_logger

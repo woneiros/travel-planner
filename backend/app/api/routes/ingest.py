@@ -9,7 +9,6 @@ from pydantic import BaseModel, Field, field_validator
 from app.api.auth import CurrentUser
 from app.models.video import VideoSummary
 from app.observability.langfuse_client import observe
-from app.observability.tracing import tracer
 from app.services.extraction import extract_places_from_video, generate_video_summary
 from app.services.llm_client import create_llm_client
 from app.services.session_manager import get_session_manager
