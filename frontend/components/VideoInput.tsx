@@ -3,12 +3,16 @@
 import { useState } from "react";
 
 interface VideoInputProps {
-  onSubmit: (urls: string[], provider: "openai" | "anthropic") => void;
+  onSubmit: (urls: string[]) => void;
   isLoading: boolean;
   title?: string;
 }
 
-export default function VideoInput({ onSubmit, isLoading, title = "Add YouTube Videos" }: VideoInputProps) {
+export default function VideoInput({
+  onSubmit,
+  isLoading,
+  title = "Add YouTube Videos",
+}: VideoInputProps) {
   const [urls, setUrls] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -19,7 +23,7 @@ export default function VideoInput({ onSubmit, isLoading, title = "Add YouTube V
       .filter((url) => url.length > 0);
 
     if (urlList.length > 0) {
-      onSubmit(urlList, "anthropic");
+      onSubmit(urlList);
     }
   };
 

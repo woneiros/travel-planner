@@ -103,6 +103,23 @@ class SessionManager:
 
         return session
 
+    def get_or_create_session(self, session_id: Optional[str]) -> Session:
+        """
+        Retrieve a session by ID, or create a new one if not found.
+
+        Args:
+            session_id: Session ID to retrieve
+
+        Returns:
+            Session object
+        """
+        if not session_id:
+            return self.create_session()
+        session = self._sessions.get(session_id, None)
+        if not session:
+            return self.create_session()
+        return session
+
     def update_session(self, session: Session) -> None:
         """
         Update a session and refresh its activity timestamp.

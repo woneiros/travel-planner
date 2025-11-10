@@ -1,14 +1,14 @@
 """Video ingestion endpoints."""
 
 import time
-from typing import Literal
+from typing import Optional
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
 
 from app.api.auth import CurrentUser
 from app.models.video import VideoSummary
-from app.observability.langfuse_client import observe
+from app.observability.langfuse_client import observe, propagate_attributes
 from app.services.extraction import extract_places_from_video, generate_video_summary
 from app.services.llm_client import create_llm_client
 from app.services.session_manager import get_session_manager
@@ -18,6 +18,8 @@ from app.utils.logger import setup_logger
 logger = setup_logger(__name__)
 router = APIRouter()
 
+LLM_PROVIDER = "anthropic"
+
 
 class IngestRequest(BaseModel):
     """Request model for video ingestion."""
@@ -25,8 +27,8 @@ class IngestRequest(BaseModel):
     video_urls: list[str] = Field(
         ..., min_length=1, max_length=10, description="1-10 YouTube URLs"
     )
-    llm_provider: Literal["openai", "anthropic"] = Field(
-        ..., description="LLM provider to use"
+    session_id: Optional[str] = Field(
+        default=None, description="Session ID from ingestion"
     )
 
     @field_validator("video_urls")
@@ -84,15 +86,19 @@ async def ingest_videos(request: IngestRequest, current_user: CurrentUser):
 
     try:
         # Create LLM client
-        llm_client = create_llm_client(request.llm_provider)
+        llm_client = create_llm_client(LLM_PROVIDER)
         logger.info(
             f"User {current_user['user_id']} starting ingestion of "
-            f"{len(request.video_urls)} videos using {request.llm_provider}"
+            f"{len(request.video_urls)} videos using {LLM_PROVIDER}"
+        )
+        propagate_attributes(
+            user_id=current_user["user_id"],
+            metadata={"llm_provider": LLM_PROVIDER, "pipeline": "video_ingestion"},
         )
 
         # Create new session
         session_manager = get_session_manager()
-        session = session_manager.create_session()
+        session = session_manager.get_or_create_session(request.session_id)
 
         video_summaries = []
         all_places = []

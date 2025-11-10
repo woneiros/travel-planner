@@ -1,6 +1,6 @@
 """Chat interaction endpoints."""
 
-from typing import Literal
+from typing import Literal, Optional
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -22,7 +22,9 @@ router = APIRouter()
 class ChatRequest(BaseModel):
     """Request model for chat interaction."""
 
-    session_id: str = Field(..., description="Session ID from ingestion")
+    session_id: Optional[str] = Field(
+        default=None, description="Session ID from ingestion"
+    )
     message: str = Field(..., min_length=1, max_length=1000, description="User message")
     llm_provider: Literal["openai", "anthropic"] = Field(
         ..., description="LLM provider to use"
@@ -80,7 +82,7 @@ async def chat(request: ChatRequest, current_user: CurrentUser):
     try:
         # Get session
         session_manager = get_session_manager()
-        session = session_manager.get_session(request.session_id)
+        session = session_manager.get_or_create_session(request.session_id)
 
         # Create LLM client
         llm_client = create_llm_client(request.llm_provider)

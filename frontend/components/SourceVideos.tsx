@@ -6,7 +6,7 @@ import type { VideoSummary } from "@/lib/types";
 
 interface SourceVideosProps {
   videos: VideoSummary[];
-  onSubmit: (urls: string[], provider: "openai" | "anthropic") => void;
+  onSubmit: (urls: string[]) => void;
   isLoading: boolean;
 }
 
@@ -86,9 +86,7 @@ export default function SourceVideos({
                 <p className="font-semibold text-[#121212] text-sm">
                   {video.title}
                 </p>
-                <p className="text-xs text-[#4A4138] mt-1">
-                  {video.summary}
-                </p>
+                <p className="text-xs text-[#4A4138] mt-1">{video.summary}</p>
                 <p className="text-xs text-[#4AA83D] mt-1 font-medium">
                   {video.places_count} places found
                 </p>
