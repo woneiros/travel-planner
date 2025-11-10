@@ -10,13 +10,15 @@ import re
 
 
 def pii_masker(data, **kwargs):
-    # Example: Simple email masking. Implement your more robust logic here.
+    """Recursive wrapper to identity string and run our masker on it."""
     if isinstance(data, str):
         return string_masker(data)
     elif isinstance(data, dict):
-        return {k: string_masker(data=v) for k, v in data.items()}
-    elif isinstance(data, list):
-        return [string_masker(data=item) for item in data]
+        # recurse
+        return {k: pii_masker(data=v) for k, v in data.items()}
+    elif isinstance(data, list) or isinstance(data, tuple):
+        # recurse
+        return [pii_masker(data=item) for item in data]
     return data
 
 
