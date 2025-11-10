@@ -59,7 +59,7 @@ def extract_video_id(url: str) -> str:
     raise ValueError(f"Could not extract video ID from URL: {url}")
 
 
-@observe()
+@observe(as_type="tool")
 async def fetch_transcript(video_id: str) -> str:
     """
     Fetch transcript for a YouTube video.
@@ -131,7 +131,7 @@ async def fetch_video_metadata(video_id: str, url: str) -> dict:
     }
 
 
-@observe()
+@observe(as_type="tool")
 async def process_video(url: str) -> Video:
     """
     Process a YouTube video: extract ID, fetch transcript and metadata.

@@ -6,7 +6,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import chat, ingest
 from app.config import settings
-from app.observability.tracing import setup_tracing
 from app.utils.logger import setup_logger
 from app.version import VERSION
 
@@ -17,7 +16,6 @@ logger = setup_logger(__name__)
 async def lifespan(app: FastAPI):
     """Application lifespan context manager."""
     logger.info("Starting Treki API")
-    setup_tracing()
 
     # Start session manager
     from app.services.session_manager import get_session_manager

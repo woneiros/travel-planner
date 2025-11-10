@@ -76,7 +76,7 @@ class LLMClient:
             logger.error(error_msg)
             raise LLMProviderError(error_msg) from e
 
-    @observe()
+    @observe(as_type="generation")
     async def invoke(self, messages: list[dict]) -> str:
         """
         Invoke the LLM with messages and return the response.
@@ -118,7 +118,7 @@ class LLMClient:
             logger.error(error_msg)
             raise LLMProviderError(error_msg) from e
 
-    @observe()
+    @observe(as_type="generation")
     async def invoke_structured(self, messages: list[dict], schema: type) -> dict:
         """
         Invoke the LLM and parse response into structured format using Pydantic.

@@ -70,81 +70,81 @@ async def chat(request: ChatRequest, current_user: CurrentUser):
     Raises:
         HTTPException: If chat fails, session is invalid, or unauthorized
     """
-    with tracer.start_as_current_span("chat_interaction") as span:
-        span.set_attribute("session.id", request.session_id)
-        span.set_attribute("user.query", request.message)
-        span.set_attribute("llm.provider", request.llm_provider)
-        span.set_attribute("user.id", current_user["user_id"])
-        if current_user.get("email"):
-            span.set_attribute("user.email", current_user["email"])
+    # with tracer.start_as_current_span("chat_interaction") as span:
+    #     span.set_attribute("session.id", request.session_id)
+    #     span.set_attribute("user.query", request.message)
+    #     span.set_attribute("llm.provider", request.llm_provider)
+    #     span.set_attribute("user.id", current_user["user_id"])
+    #     if current_user.get("email"):
+    #         span.set_attribute("user.email", current_user["email"])
 
-        try:
-            # Get session
-            session_manager = get_session_manager()
-            session = session_manager.get_session(request.session_id)
+    try:
+        # Get session
+        session_manager = get_session_manager()
+        session = session_manager.get_session(request.session_id)
 
-            # Create LLM client
-            llm_client = create_llm_client(request.llm_provider)
+        # Create LLM client
+        llm_client = create_llm_client(request.llm_provider)
 
-            logger.info(
-                f"User {current_user['user_id']} processing chat for session {request.session_id}"
-            )
+        logger.info(
+            f"User {current_user['user_id']} processing chat for session {request.session_id}"
+        )
 
-            # Chat with agent
-            response_text, referenced_place_ids = await chat_with_agent(
-                session, request.message, llm_client
-            )
+        # Chat with agent
+        response_text, referenced_place_ids = await chat_with_agent(
+            session, request.message, llm_client
+        )
 
-            # Add messages to chat history
-            user_msg = ChatMessage(
-                role="user", content=request.message, places_referenced=[]
-            )
-            assistant_msg = ChatMessage(
-                role="assistant",
-                content=response_text,
-                places_referenced=referenced_place_ids,
-            )
+        # Add messages to chat history
+        user_msg = ChatMessage(
+            role="user", content=request.message, places_referenced=[]
+        )
+        assistant_msg = ChatMessage(
+            role="assistant",
+            content=response_text,
+            places_referenced=referenced_place_ids,
+        )
 
-            session.chat_history.append(user_msg)
-            session.chat_history.append(assistant_msg)
+        session.chat_history.append(user_msg)
+        session.chat_history.append(assistant_msg)
 
-            # Update session
-            session_manager.update_session(session)
+        # Update session
+        session_manager.update_session(session)
 
-            # Build sources from referenced places
-            sources = []
-            for place_id in referenced_place_ids[:5]:  # Limit to 5 sources
-                place = next((p for p in session.places if p.id == place_id), None)
-                if place:
-                    video = next(
-                        (v for v in session.videos if v.video_id == place.video_id), None
-                    )
-                    if video:
-                        sources.append(
-                            ChatSource(
-                                video_id=video.video_id,
-                                title=video.title,
-                                timestamp=place.timestamp_seconds,
-                            )
+        # Build sources from referenced places
+        sources = []
+        for place_id in referenced_place_ids[:5]:  # Limit to 5 sources
+            place = next((p for p in session.places if p.id == place_id), None)
+            if place:
+                video = next(
+                    (v for v in session.videos if v.video_id == place.video_id), None
+                )
+                if video:
+                    sources.append(
+                        ChatSource(
+                            video_id=video.video_id,
+                            title=video.title,
+                            timestamp=place.timestamp_seconds,
                         )
+                    )
 
-            span.set_attribute("places.referenced", len(referenced_place_ids))
-            logger.info(f"Chat complete with {len(referenced_place_ids)} places referenced")
+        # span.set_attribute("places.referenced", len(referenced_place_ids))
+        logger.info(f"Chat complete with {len(referenced_place_ids)} places referenced")
 
-            return ChatResponse(
-                message=response_text,
-                places_referenced=referenced_place_ids,
-                sources=sources,
-            )
+        return ChatResponse(
+            message=response_text,
+            places_referenced=referenced_place_ids,
+            sources=sources,
+        )
 
-        except InvalidSessionError as e:
-            logger.error(f"Invalid session: {str(e)}")
-            raise HTTPException(status_code=404, detail=str(e)) from e
+    except InvalidSessionError as e:
+        logger.error(f"Invalid session: {str(e)}")
+        raise HTTPException(status_code=404, detail=str(e)) from e
 
-        except Exception as e:
-            error_msg = f"Chat failed: {str(e)}"
-            logger.error(error_msg)
-            raise HTTPException(status_code=500, detail=error_msg) from e
+    except Exception as e:
+        error_msg = f"Chat failed: {str(e)}"
+        logger.error(error_msg)
+        raise HTTPException(status_code=500, detail=error_msg) from e
 
 
 @router.get("/session/{session_id}", response_model=Session)
