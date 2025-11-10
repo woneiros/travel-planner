@@ -49,3 +49,20 @@ ignore = []
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+
+[tool.poe]
+executor.type = "uv"
+
+[tool.poe.tasks.dev]
+cmd = "uvicorn app.main:app --reload"
+help = "Run the development server with auto-reload"
+
+[tool.poe.tasks.test]
+cmd = "pytest"
+help = "Run the test suite (disabled Langfuse tracing during tests)"
+env = { LANGFUSE_TRACING_ENABLED = "false" }
+
+[tool.poe.tasks.testci]
+cmd = "pytest"
+help = "Run the test suite as it would in CI environment"
+env = { LANGFUSE_TRACING_ENABLED = "false", CI = "true", RUN_LLM_TESTS = "false" }
