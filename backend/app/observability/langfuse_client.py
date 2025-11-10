@@ -1,6 +1,6 @@
 """Langfuse integration for LLM observability."""
 
-from langfuse import Langfuse, observe
+from langfuse import Langfuse, observe, propagate_attributes
 
 from app.config import settings
 from app.observability.privacy import pii_masker
@@ -34,4 +34,4 @@ def get_langfuse() -> Langfuse:
     return langfuse_client
 
 
-__all__ = ["langfuse_client", "get_langfuse", "observe"]
+__all__ = ["langfuse_client", "get_langfuse", "observe", "propagate_attributes"]

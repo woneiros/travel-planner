@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from app.api.auth import CurrentUser
 from app.models.video import VideoSummary
-from app.observability.langfuse_client import observe
+from app.observability.langfuse_client import observe, propagate_attributes
 from app.services.extraction import extract_places_from_video, generate_video_summary
 from app.services.llm_client import create_llm_client
 from app.services.session_manager import get_session_manager
@@ -17,7 +17,6 @@ from app.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 router = APIRouter()
-
 
 LLM_PROVIDER = "anthropic"
 
@@ -91,6 +90,10 @@ async def ingest_videos(request: IngestRequest, current_user: CurrentUser):
         logger.info(
             f"User {current_user['user_id']} starting ingestion of "
             f"{len(request.video_urls)} videos using {LLM_PROVIDER}"
+        )
+        propagate_attributes(
+            user_id=current_user["user_id"],
+            metadata={"llm_provider": LLM_PROVIDER, "pipeline": "video_ingestion"},
         )
 
         # Create new session
