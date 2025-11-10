@@ -73,37 +73,34 @@ async def fetch_transcript(video_id: str) -> str:
     Raises:
         YouTubeTranscriptError: If transcript cannot be fetched
     """
-    with tracer.start_as_current_span("fetch_transcript") as span:
-        span.set_attribute("video.id", video_id)
+    try:
+        # Try to get English transcript first, then fall back to any available
+        transcript_data = YouTubeTranscriptApi().fetch(video_id, languages=["en"])
 
-        try:
-            # Try to get English transcript first, then fall back to any available
-            transcript_data = YouTubeTranscriptApi().fetch(video_id, languages=["en"])
+        # Combine all text segments
+        full_text = " ".join([entry.text for entry in transcript_data])
 
-            # Combine all text segments
-            full_text = " ".join([entry.text for entry in transcript_data])
+        # span.set_attribute("transcript.length", len(full_text))
+        logger.info(
+            f"Fetched transcript for video {video_id}, length: {len(full_text)}"
+        )
 
-            span.set_attribute("transcript.length", len(full_text))
-            logger.info(
-                f"Fetched transcript for video {video_id}, length: {len(full_text)}"
-            )
+        return full_text
 
-            return full_text
+    except (NoTranscriptFound, TranscriptsDisabled) as e:
+        error_msg = f"Transcript not available for video {video_id}: {str(e)}"
+        logger.error(error_msg)
+        raise YouTubeTranscriptError(error_msg) from e
 
-        except (NoTranscriptFound, TranscriptsDisabled) as e:
-            error_msg = f"Transcript not available for video {video_id}: {str(e)}"
-            logger.error(error_msg)
-            raise YouTubeTranscriptError(error_msg) from e
+    except VideoUnavailable as e:
+        error_msg = f"Video {video_id} is unavailable: {str(e)}"
+        logger.error(error_msg)
+        raise YouTubeTranscriptError(error_msg) from e
 
-        except VideoUnavailable as e:
-            error_msg = f"Video {video_id} is unavailable: {str(e)}"
-            logger.error(error_msg)
-            raise YouTubeTranscriptError(error_msg) from e
-
-        except Exception as e:
-            error_msg = f"Unexpected error fetching transcript for {video_id}: {str(e)}"
-            logger.error(error_msg)
-            raise YouTubeTranscriptError(error_msg) from e
+    except Exception as e:
+        error_msg = f"Unexpected error fetching transcript for {video_id}: {str(e)}"
+        logger.error(error_msg)
+        raise YouTubeTranscriptError(error_msg) from e
 
 
 async def fetch_video_metadata(video_id: str, url: str) -> dict:
@@ -146,28 +143,27 @@ async def process_video(url: str) -> Video:
         ValueError: If URL is invalid
         YouTubeTranscriptError: If transcript cannot be fetched
     """
-    with tracer.start_as_current_span("process_video") as span:
-        # Extract video ID
-        video_id = extract_video_id(url)
-        span.set_attribute("video.id", video_id)
+    # Extract video ID
+    video_id = extract_video_id(url)
+    # span.set_attribute("video.id", video_id)
 
-        logger.info(f"Processing video: {video_id}")
+    logger.info(f"Processing video: {video_id}")
 
-        # Fetch transcript
-        transcript = await fetch_transcript(video_id)
+    # Fetch transcript
+    transcript = await fetch_transcript(video_id)
 
-        # Fetch metadata
-        metadata = await fetch_video_metadata(video_id, url)
+    # Fetch metadata
+    metadata = await fetch_video_metadata(video_id, url)
 
-        # Create Video model
-        video = Video(
-            video_id=video_id,
-            title=metadata["title"],
-            description=metadata["description"],
-            duration_seconds=metadata["duration_seconds"],
-            transcript=transcript,
-            url=url,
-        )
+    # Create Video model
+    video = Video(
+        video_id=video_id,
+        title=metadata["title"],
+        description=metadata["description"],
+        duration_seconds=metadata["duration_seconds"],
+        transcript=transcript,
+        url=url,
+    )
 
-        logger.info(f"Successfully processed video: {video_id}")
-        return video
+    logger.info(f"Successfully processed video: {video_id}")
+    return video
