@@ -1,1 +1,1 @@
-"""Travel Planner Backend Application."""
+"""Treki Backend Application."""

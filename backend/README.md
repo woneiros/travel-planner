@@ -1,4 +1,4 @@
-# Travel Planner Backend
+# Treki: Backend
 
 AI-powered travel planning backend with observability.
 
@@ -39,6 +39,7 @@ API documentation: `http://localhost:8000/docs`
 Ingest YouTube videos and extract places.
 
 **Request:**
+
 ```json
 {
   "video_urls": ["https://www.youtube.com/watch?v=VIDEO_ID"],
@@ -51,6 +52,7 @@ Ingest YouTube videos and extract places.
 Chat with the AI agent about extracted places.
 
 **Request:**
+
 ```json
 {
   "session_id": "uuid",

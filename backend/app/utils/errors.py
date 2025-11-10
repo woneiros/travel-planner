@@ -1,31 +1,31 @@
 """Custom exceptions."""
 
 
-class TravelPlannerException(Exception):
+class TrekiException(Exception):
     """Base exception for the application."""
 
     pass
 
 
-class YouTubeTranscriptError(TravelPlannerException):
+class YouTubeTranscriptError(TrekiException):
     """Raised when YouTube transcript cannot be fetched."""
 
     pass
 
 
-class InvalidSessionError(TravelPlannerException):
+class InvalidSessionError(TrekiException):
     """Raised when session ID is invalid or expired."""
 
     pass
 
 
-class LLMProviderError(TravelPlannerException):
+class LLMProviderError(TrekiException):
     """Raised when LLM provider encounters an error."""
 
     pass
 
 
-class ExtractionError(TravelPlannerException):
+class ExtractionError(TrekiException):
     """Raised when place extraction fails."""
 
     pass

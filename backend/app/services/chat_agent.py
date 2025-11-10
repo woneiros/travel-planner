@@ -7,7 +7,6 @@ from langchain_core.tools import tool
 from app.models.place import Place, PlaceType
 from app.models.session import Session
 from app.observability.langfuse_client import observe
-from app.observability.tracing import tracer
 from app.services.llm_client import LLMClient
 from app.utils.logger import setup_logger
 
@@ -137,115 +136,117 @@ async def chat_with_agent(
     Raises:
         Exception: If chat processing fails
     """
-    with tracer.start_as_current_span("chat_with_agent") as span:
-        span.set_attribute("session.id", session.session_id)
-        span.set_attribute("user.query", user_message)
-        span.set_attribute("places.available", len(session.places))
+    # with tracer.start_as_current_span("chat_with_agent") as span:
+    #     span.set_attribute("session.id", session.session_id)
+    #     span.set_attribute("user.query", user_message)
+    #     span.set_attribute("places.available", len(session.places))
 
-        try:
-            # Create tools with session context
-            search_tool = create_search_places_tool(session.places)
-            transcript_tool = create_get_transcript_tool(session)
+    try:
+        # Create tools with session context
+        search_tool = create_search_places_tool(session.places)
+        transcript_tool = create_get_transcript_tool(session)
 
-            tools = [search_tool, transcript_tool]
+        tools = [search_tool, transcript_tool]
 
-            # Bind tools to the model
-            model_with_tools = llm_client._model.bind_tools(tools)
+        # Bind tools to the model
+        model_with_tools = llm_client._model.bind_tools(tools)
 
-            # Build conversation context
-            system_prompt = CHAT_SYSTEM_PROMPT.format(
-                num_videos=len(session.videos),
-                total_places=len(session.places),
-            )
+        # Build conversation context
+        system_prompt = CHAT_SYSTEM_PROMPT.format(
+            num_videos=len(session.videos),
+            total_places=len(session.places),
+        )
 
-            # Convert chat history to messages
-            messages = [{"role": "system", "content": system_prompt}]
+        # Convert chat history to messages
+        messages = [{"role": "system", "content": system_prompt}]
 
-            # Add recent chat history (last 10 messages)
-            for msg in session.chat_history[-10:]:
-                messages.append({"role": msg.role, "content": msg.content})
+        # Add recent chat history (last 10 messages)
+        for msg in session.chat_history[-10:]:
+            messages.append({"role": msg.role, "content": msg.content})
 
-            # Add current user message
-            messages.append({"role": "user", "content": user_message})
+        # Add current user message
+        messages.append({"role": "user", "content": user_message})
 
-            # Convert to LangChain messages
-            from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+        # Convert to LangChain messages
+        from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
-            langchain_messages = []
-            for msg in messages:
-                if msg["role"] == "system":
-                    langchain_messages.append(SystemMessage(content=msg["content"]))
-                elif msg["role"] == "user":
-                    langchain_messages.append(HumanMessage(content=msg["content"]))
-                elif msg["role"] == "assistant":
-                    langchain_messages.append(AIMessage(content=msg["content"]))
+        langchain_messages = []
+        for msg in messages:
+            if msg["role"] == "system":
+                langchain_messages.append(SystemMessage(content=msg["content"]))
+            elif msg["role"] == "user":
+                langchain_messages.append(HumanMessage(content=msg["content"]))
+            elif msg["role"] == "assistant":
+                langchain_messages.append(AIMessage(content=msg["content"]))
 
-            # Invoke model with tools (iterative tool calling)
-            response = await model_with_tools.ainvoke(langchain_messages)
+        # Invoke model with tools (iterative tool calling)
+        response = await model_with_tools.ainvoke(langchain_messages)
 
-            # Handle tool calls if present
-            referenced_place_ids = []
-            final_response = response.content
+        # Handle tool calls if present
+        referenced_place_ids = []
+        final_response = response.content
 
-            if hasattr(response, "tool_calls") and response.tool_calls:
-                # Execute tools and get results
-                tool_results = []
-                for tool_call in response.tool_calls:
-                    tool_name = tool_call["name"]
-                    tool_args = tool_call["args"]
+        if hasattr(response, "tool_calls") and response.tool_calls:
+            # Execute tools and get results
+            tool_results = []
+            for tool_call in response.tool_calls:
+                tool_name = tool_call["name"]
+                tool_args = tool_call["args"]
 
-                    logger.info(f"Executing tool: {tool_name} with args: {tool_args}")
+                logger.info(f"Executing tool: {tool_name} with args: {tool_args}")
 
-                    # Execute the tool
-                    if tool_name == "search_places":
-                        result = search_tool.invoke(tool_args)
-                        tool_results.append(result)
+                # Execute the tool
+                if tool_name == "search_places":
+                    result = search_tool.invoke(tool_args)
+                    tool_results.append(result)
 
-                        # Track referenced places
-                        for place_dict in result:
-                            # Find matching place by name and video_id
-                            matching_place = next(
-                                (
-                                    p
-                                    for p in session.places
-                                    if p.name == place_dict["name"]
-                                    and p.video_id == place_dict["video_id"]
-                                ),
-                                None,
-                            )
-                            if matching_place:
-                                referenced_place_ids.append(matching_place.id)
-
-                    elif tool_name == "get_video_transcript":
-                        result = transcript_tool.invoke(tool_args)
-                        tool_results.append(result)
-
-                # If tools were called, we should get a follow-up response
-                # For simplicity, we'll use the tool results directly in the response
-                # In a production system, you'd want to do another LLM call with tool results
-                if tool_results and isinstance(tool_results[0], list):
-                    # Format search results into response
-                    places_found = tool_results[0]
-                    if places_found:
-                        final_response = f"I found {len(places_found)} relevant place(s):\n\n"
-                        for place in places_found[:5]:  # Limit to top 5
-                            final_response += f"**{place['name']}** ({place['type']})\n"
-                            final_response += f"{place['description']}\n"
-                            final_response += f"_{place['mentioned_context']}_\n\n"
-                    else:
-                        final_response = (
-                            "I couldn't find any places matching your criteria. "
-                            "Try a different search term or ask me about the available places!"
+                    # Track referenced places
+                    for place_dict in result:
+                        # Find matching place by name and video_id
+                        matching_place = next(
+                            (
+                                p
+                                for p in session.places
+                                if p.name == place_dict["name"]
+                                and p.video_id == place_dict["video_id"]
+                            ),
+                            None,
                         )
+                        if matching_place:
+                            referenced_place_ids.append(matching_place.id)
 
-            span.set_attribute("places.referenced", len(referenced_place_ids))
-            logger.info(
-                f"Chat response generated with {len(referenced_place_ids)} places referenced"
-            )
+                elif tool_name == "get_video_transcript":
+                    result = transcript_tool.invoke(tool_args)
+                    tool_results.append(result)
 
-            return final_response, referenced_place_ids
+            # If tools were called, we should get a follow-up response
+            # For simplicity, we'll use the tool results directly in the response
+            # In a production system, you'd want to do another LLM call with tool results
+            if tool_results and isinstance(tool_results[0], list):
+                # Format search results into response
+                places_found = tool_results[0]
+                if places_found:
+                    final_response = (
+                        f"I found {len(places_found)} relevant place(s):\n\n"
+                    )
+                    for place in places_found[:5]:  # Limit to top 5
+                        final_response += f"**{place['name']}** ({place['type']})\n"
+                        final_response += f"{place['description']}\n"
+                        final_response += f"_{place['mentioned_context']}_\n\n"
+                else:
+                    final_response = (
+                        "I couldn't find any places matching your criteria. "
+                        "Try a different search term or ask me about the available places!"
+                    )
 
-        except Exception as e:
-            error_msg = f"Chat agent failed: {str(e)}"
-            logger.error(error_msg)
-            raise
+        # span.set_attribute("places.referenced", len(referenced_place_ids))
+        logger.info(
+            f"Chat response generated with {len(referenced_place_ids)} places referenced"
+        )
+
+        return final_response, referenced_place_ids
+
+    except Exception as e:
+        error_msg = f"Chat agent failed: {str(e)}"
+        logger.error(error_msg)
+        raise

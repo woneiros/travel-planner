@@ -27,7 +27,10 @@ class Settings(BaseSettings):
     session_ttl_seconds: int = 3600
 
     # API
-    cors_origins: list[str] = ["http://localhost:3000", "http://localhost:3001"]
+    cors_origins: list[str] = [
+        "http://localhost:3000",
+        "https://treki.promptreplay.ai",
+    ]
 
 
 settings = Settings()

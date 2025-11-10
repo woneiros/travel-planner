@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 from app.models.place import Place, PlaceType
 from app.models.video import Video
 from app.observability.langfuse_client import observe
-from app.observability.tracing import tracer
 from app.services.llm_client import LLMClient
 from app.utils.errors import ExtractionError
 from app.utils.logger import setup_logger
@@ -82,7 +81,7 @@ Create a concise 2-3 sentence summary of the video that highlights:
 Be engaging and informative."""
 
 
-@observe()
+@observe(as_type="generation")
 async def extract_places_from_video(
     video: Video, llm_client: LLMClient
 ) -> tuple[list[Place], str]:
@@ -99,14 +98,14 @@ async def extract_places_from_video(
     Raises:
         ExtractionError: If extraction fails
     """
-    with tracer.start_as_current_span("extract_places") as span:
-        span.set_attribute("video.id", video.video_id)
-        span.set_attribute("transcript.length", len(video.transcript))
-        span.set_attribute("llm.provider", llm_client.provider)
+    # with tracer.start_as_current_span("extract_places") as span:
+    #     span.set_attribute("video.id", video.video_id)
+    #     span.set_attribute("transcript.length", len(video.transcript))
+    #     span.set_attribute("llm.provider", llm_client.provider)
 
-        try:
-            # Build user prompt with video context
-            user_prompt = f"""Video Title: {video.title}
+    try:
+        # Build user prompt with video context
+        user_prompt = f"""Video Title: {video.title}
 Description: {video.description or "N/A"}
 
 Transcript:
@@ -114,46 +113,46 @@ Transcript:
 
 Extract all recommended places from this travel video transcript."""
 
-            messages = [
-                {"role": "system", "content": EXTRACTION_SYSTEM_PROMPT},
-                {"role": "user", "content": user_prompt},
-            ]
+        messages = [
+            {"role": "system", "content": EXTRACTION_SYSTEM_PROMPT},
+            {"role": "user", "content": user_prompt},
+        ]
 
-            # Use structured output to get places and suggested title
-            result = await llm_client.invoke_structured(messages, PlaceExtractionResult)
+        # Use structured output to get places and suggested title
+        result = await llm_client.invoke_structured(messages, PlaceExtractionResult)
 
-            # Get suggested title
-            suggested_title = result.get("suggested_title", f"Video {video.video_id}")
+        # Get suggested title
+        suggested_title = result.get("suggested_title", f"Video {video.video_id}")
 
-            # Convert to Place models with video_id
-            places = [
-                Place(
-                    name=p["name"],
-                    type=p["type"],
-                    description=p["description"],
-                    video_id=video.video_id,
-                    timestamp_seconds=p.get("timestamp_seconds"),
-                    mentioned_context=p["mentioned_context"],
-                )
-                for p in result["places"]
-            ]
-
-            span.set_attribute("places.extracted", len(places))
-            span.set_attribute("suggested_title", suggested_title)
-            logger.info(
-                f"Extracted {len(places)} places from video {video.video_id}, "
-                f"suggested title: {suggested_title}"
+        # Convert to Place models with video_id
+        places = [
+            Place(
+                name=p["name"],
+                type=p["type"],
+                description=p["description"],
+                video_id=video.video_id,
+                timestamp_seconds=p.get("timestamp_seconds"),
+                mentioned_context=p["mentioned_context"],
             )
+            for p in result["places"]
+        ]
 
-            return places, suggested_title
+        # span.set_attribute("places.extracted", len(places))
+        # span.set_attribute("suggested_title", suggested_title)
+        logger.info(
+            f"Extracted {len(places)} places from video {video.video_id}, "
+            f"suggested title: {suggested_title}"
+        )
 
-        except Exception as e:
-            error_msg = f"Failed to extract places from video {video.video_id}: {str(e)}"
-            logger.error(error_msg)
-            raise ExtractionError(error_msg) from e
+        return places, suggested_title
+
+    except Exception as e:
+        error_msg = f"Failed to extract places from video {video.video_id}: {str(e)}"
+        logger.error(error_msg)
+        raise ExtractionError(error_msg) from e
 
 
-@observe()
+@observe(as_type="generation")
 async def generate_video_summary(
     video: Video, places: list[Place], llm_client: LLMClient
 ) -> str:
@@ -171,37 +170,37 @@ async def generate_video_summary(
     Raises:
         ExtractionError: If summary generation fails
     """
-    with tracer.start_as_current_span("generate_summary") as span:
-        span.set_attribute("video.id", video.video_id)
-        span.set_attribute("places.count", len(places))
+    # with tracer.start_as_current_span("generate_summary") as span:
+    #     span.set_attribute("video.id", video.video_id)
+    #     span.set_attribute("places.count", len(places))
 
-        try:
-            # Build context about places
-            places_context = "\n".join(
-                [
-                    f"- {p.name} ({p.type}): {p.mentioned_context}"
-                    for p in places[:10]  # Limit to first 10 for context
-                ]
-            )
+    try:
+        # Build context about places
+        places_context = "\n".join(
+            [
+                f"- {p.name} ({p.type}): {p.mentioned_context}"
+                for p in places[:10]  # Limit to first 10 for context
+            ]
+        )
 
-            user_prompt = f"""Video Title: {video.title}
+        user_prompt = f"""Video Title: {video.title}
 
 Extracted Places:
 {places_context}
 
 Create a concise summary of this travel video."""
 
-            messages = [
-                {"role": "system", "content": SUMMARY_SYSTEM_PROMPT},
-                {"role": "user", "content": user_prompt},
-            ]
+        messages = [
+            {"role": "system", "content": SUMMARY_SYSTEM_PROMPT},
+            {"role": "user", "content": user_prompt},
+        ]
 
-            summary = await llm_client.invoke(messages)
+        summary = await llm_client.invoke(messages)
 
-            logger.info(f"Generated summary for video {video.video_id}")
-            return summary.strip()
+        logger.info(f"Generated summary for video {video.video_id}")
+        return summary.strip()
 
-        except Exception as e:
-            error_msg = f"Failed to generate summary for video {video.video_id}: {str(e)}"
-            logger.error(error_msg)
-            raise ExtractionError(error_msg) from e
+    except Exception as e:
+        error_msg = f"Failed to generate summary for video {video.video_id}: {str(e)}"
+        logger.error(error_msg)
+        raise ExtractionError(error_msg) from e
