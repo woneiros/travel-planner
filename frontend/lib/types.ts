@@ -2,7 +2,14 @@
  * TypeScript types for the Travel Planner API
  */
 
-export type PlaceType = "restaurant" | "attraction" | "hotel" | "activity" | "coffee_shop" | "shopping" | "other";
+export type PlaceType =
+  | "restaurant"
+  | "attraction"
+  | "hotel"
+  | "activity"
+  | "coffee_shop"
+  | "shopping"
+  | "other";
 
 export interface Place {
   id: string;
@@ -50,7 +57,6 @@ export interface Session {
 // API Request/Response types
 export interface IngestRequest {
   video_urls: string[];
-  llm_provider: "openai" | "anthropic";
 }
 
 export interface IngestResponse {

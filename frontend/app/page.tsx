@@ -25,17 +25,13 @@ export default function Home() {
   const [isChatting, setIsChatting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleIngestVideos = async (
-    urls: string[],
-    provider: "openai" | "anthropic"
-  ) => {
+  const handleIngestVideos = async (urls: string[]) => {
     setIsIngesting(true);
     setError(null);
 
     try {
       const response: IngestResponse = await api.ingestVideos({
         video_urls: urls,
-        llm_provider: provider,
       });
 
       setSessionId(response.session_id);
