@@ -1,7 +1,6 @@
 """FastAPI application entry point."""
 
 from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -9,6 +8,7 @@ from app.api.routes import chat, ingest
 from app.config import settings
 from app.observability.tracing import setup_tracing
 from app.utils.logger import setup_logger
+from app.version import VERSION
 
 logger = setup_logger(__name__)
 
@@ -16,7 +16,7 @@ logger = setup_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan context manager."""
-    logger.info("Starting Travel Planner API")
+    logger.info("Starting Treki API")
     setup_tracing()
 
     # Start session manager
@@ -54,6 +54,13 @@ app.add_middleware(
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy"}
+
+
+# Version
+@app.get("/version")
+async def get_version():
+    """Version endpoint."""
+    return {"version": VERSION}
 
 
 # Include routers
