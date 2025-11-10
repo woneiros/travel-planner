@@ -11,12 +11,11 @@ from youtube_transcript_api._errors import (
 )
 
 from app.models.video import Video
-from app.observability.langfuse_client import get_langfuse, observe
+from app.observability.langfuse_client import observe
 from app.utils.errors import YouTubeTranscriptError
 from app.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
-lf = get_langfuse()
 
 
 def extract_video_id(url: str) -> str:
@@ -85,7 +84,7 @@ async def fetch_transcript(video_id: str) -> str:
             f"Fetched transcript for video {video_id}, length: {len(full_text)}"
         )
 
-        lf.update_current_span(metadata={"transcript.length": len(full_text)})
+        # lf.update_current_span(metadata={"transcript.length": len(full_text)})
         return full_text
 
     except (NoTranscriptFound, TranscriptsDisabled) as e:
