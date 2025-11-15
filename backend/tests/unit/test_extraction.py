@@ -6,7 +6,7 @@ import pytest
 
 from app.models.place import PlaceType
 from app.models.video import Video
-from app.services.extraction import extract_places_from_video
+from app.agents.extraction import extract_places_from_video
 from app.services.llm_client import LLMClient
 
 
@@ -41,7 +41,7 @@ def mock_llm_client():
                     "mentioned_context": "The food was incredible",
                 }
             ],
-            "suggested_title": "Paris Food Tour"
+            "suggested_title": "Paris Food Tour",
         }
     )
 
@@ -51,7 +51,9 @@ def mock_llm_client():
 @pytest.mark.asyncio
 async def test_extract_places_from_video(sample_video, mock_llm_client):
     """Test extracting places from a video."""
-    places, suggested_title = await extract_places_from_video(sample_video, mock_llm_client)
+    places, suggested_title = await extract_places_from_video(
+        sample_video, mock_llm_client
+    )
 
     assert len(places) == 1
     assert places[0].name == "Le Bistro"
@@ -86,11 +88,13 @@ async def test_extract_places_with_multiple_results(sample_video, mock_llm_clien
                     "mentioned_context": "Must visit",
                 },
             ],
-            "suggested_title": "Best of Paris"
+            "suggested_title": "Best of Paris",
         }
     )
 
-    places, suggested_title = await extract_places_from_video(sample_video, mock_llm_client)
+    places, suggested_title = await extract_places_from_video(
+        sample_video, mock_llm_client
+    )
 
     assert len(places) == 2
     assert places[0].name == "Le Bistro"

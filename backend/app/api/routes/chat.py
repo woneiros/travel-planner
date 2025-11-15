@@ -9,7 +9,7 @@ from app.api.auth import CurrentUser
 from app.models.chat import ChatMessage
 from app.models.session import Session
 from app.observability.langfuse_client import observe
-from app.services.chat_agent import chat_with_agent
+from app.agents.chat_agent import chat_with_agent
 from app.services.llm_client import create_llm_client
 from app.services.session_manager import get_session_manager
 from app.utils.errors import InvalidSessionError

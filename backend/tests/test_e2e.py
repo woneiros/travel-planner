@@ -29,7 +29,7 @@ import pytest
 
 from app.models.place import Place, PlaceType
 from app.models.video import Video
-from app.services.extraction import extract_places_from_video
+from app.agents.extraction import extract_places_from_video
 from app.services.llm_client import create_llm_client
 from app.services.youtube import extract_video_id, fetch_transcript
 
@@ -68,7 +68,9 @@ async def test_youtube_transcript_extraction_e2e():
     transcript = await fetch_transcript(video_id)
 
     # Assert
-    assert video_id == expected_video_id, f"Expected video ID {expected_video_id}, got {video_id}"
+    assert (
+        video_id == expected_video_id
+    ), f"Expected video ID {expected_video_id}, got {video_id}"
     assert isinstance(transcript, str), "Transcript should be a string"
     assert len(transcript) > 0, "Transcript should not be empty"
     assert len(transcript) > 100, "Transcript should have substantial content"
@@ -156,10 +158,18 @@ async def test_place_extraction_from_transcript_e2e():
         assert isinstance(place.name, str), f"Place {i} should have a string name"
         assert len(place.name) > 0, f"Place {i} name should not be empty"
         assert place.type in PlaceType, f"Place {i} type should be a valid PlaceType"
-        assert isinstance(place.description, str), f"Place {i} should have a string description"
-        assert place.video_id == video.video_id, f"Place {i} should reference correct video_id"
-        assert isinstance(place.mentioned_context, str), f"Place {i} should have mentioned_context"
-        assert isinstance(place.created_at, datetime), f"Place {i} should have a datetime"
+        assert isinstance(
+            place.description, str
+        ), f"Place {i} should have a string description"
+        assert (
+            place.video_id == video.video_id
+        ), f"Place {i} should reference correct video_id"
+        assert isinstance(
+            place.mentioned_context, str
+        ), f"Place {i} should have mentioned_context"
+        assert isinstance(
+            place.created_at, datetime
+        ), f"Place {i} should have a datetime"
 
         print(f"  {i}. {place.name} ({place.type.value})")
         print(f"     Description: {place.description[:80]}...")
@@ -168,8 +178,9 @@ async def test_place_extraction_from_transcript_e2e():
     place_types = [p.type for p in places]
 
     # Should have identified at least some expected place types
-    assert any(pt in [PlaceType.RESTAURANT, PlaceType.COFFEE_SHOP] for pt in place_types), \
-        "Should identify at least one restaurant or coffee shop"
+    assert any(
+        pt in [PlaceType.RESTAURANT, PlaceType.COFFEE_SHOP] for pt in place_types
+    ), "Should identify at least one restaurant or coffee shop"
 
     print("\n✓ All place objects have valid structure")
     print(f"✓ Place types found: {set(pt.value for pt in place_types)}")
