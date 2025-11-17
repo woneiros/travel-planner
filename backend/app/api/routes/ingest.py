@@ -3,15 +3,14 @@
 import time
 from typing import Optional
 
-from app.models.place import Place
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
 
+from app.agents.extraction import extract_places_from_video
 from app.api.auth import CurrentUser
-
+from app.models.place import Place
 from app.models.video import Video
 from app.observability.langfuse_client import observe, propagate_attributes
-from app.agents.extraction import extract_places_from_video
 from app.services.llm_client import create_llm_client
 from app.services.session_manager import get_session_manager
 from app.services.youtube import process_video

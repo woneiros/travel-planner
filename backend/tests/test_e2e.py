@@ -27,9 +27,9 @@ from datetime import datetime
 
 import pytest
 
+from app.agents.extraction import extract_places_from_video
 from app.models.place import Place, PlaceType
 from app.models.video import Video
-from app.agents.extraction import extract_places_from_video
 from app.services.llm_client import create_llm_client
 from app.services.youtube import extract_video_id, fetch_transcript
 

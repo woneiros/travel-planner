@@ -4,9 +4,9 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from app.agents.extraction import PlaceExtractionResult, extract_places_from_video
 from app.models.place import Place, PlaceType
 from app.models.video import Video
-from app.agents.extraction import PlaceExtractionResult, extract_places_from_video
 from app.services.llm_client import LLMClient
 
 
