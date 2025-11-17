@@ -123,7 +123,9 @@ Extract all recommended places from this travel video transcript."""
         ]
 
         # Use structured output to get places and suggested title
-        result = await llm_client.invoke_structured(messages, PlaceExtractionResult)
+        result: PlaceExtractionResult = await llm_client.invoke_structured(
+            messages, PlaceExtractionResult
+        )
 
         # Get suggested title
         suggested_title = result.suggested_title or f"Video {video.video_id}"

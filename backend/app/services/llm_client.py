@@ -119,7 +119,7 @@ class LLMClient:
             raise LLMProviderError(error_msg) from e
 
     @observe(as_type="generation")
-    async def invoke_structured(self, messages: list[dict], schema: type) -> dict:
+    async def invoke_structured(self, messages: list[dict], schema: type) -> object:
         """
         Invoke the LLM and parse response into structured format using Pydantic.
 
@@ -128,7 +128,7 @@ class LLMClient:
             schema: Pydantic model class for structured output
 
         Returns:
-            Parsed structured output as dictionary
+            Parsed structured output of type `schema`
 
         Raises:
             LLMProviderError: If invocation or parsing fails
@@ -154,13 +154,17 @@ class LLMClient:
 
             logger.info(f"Structured LLM invocation successful using {self.provider}")
 
-            # Convert Pydantic model to dict
-            if hasattr(result, "model_dump"):
-                return result.model_dump()
-            elif hasattr(result, "dict"):
-                return result.dict()
-            else:
-                return dict(result)
+            logger.info("Structured LLM invocation result of type: %s", type(result))
+            logger.info("Structured LLM invocation result: %s", result)
+
+            return result
+            # # Convert Pydantic model to dict
+            # if hasattr(result, "model_dump"):
+            #     return result.model_dump()
+            # elif hasattr(result, "dict"):
+            #     return result.dict()
+            # else:
+            #     return dict(result)
 
         except Exception as e:
             error_msg = f"Structured LLM invocation failed ({self.provider}): {str(e)}"

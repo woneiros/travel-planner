@@ -121,6 +121,8 @@ async def ingest_videos(request: IngestRequest, current_user: CurrentUser):
                 session.places.extend(extracted_result.places)
                 # Use suggested title from LLM instead of placeholder
                 video.title = extracted_result.suggested_title
+                video.summary = extracted_result.suggested_summary
+                video.places_count = len(extracted_result.places)
 
                 success_videos.append(video)
                 logger.info(
