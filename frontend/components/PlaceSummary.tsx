@@ -121,6 +121,18 @@ export default function PlaceSummary({ places, videos }: PlaceSummaryProps) {
                       <p className="text-xs text-[#6C6256] mt-2 italic">
                         {place.mentioned_context}
                       </p>
+                      {(place.address || place.neighborhood) && (
+                        <div className="mt-2 space-y-1">
+                          <p className="text-xs text-[#4A4138]">
+                            <span className="font-medium">Address:</span>{" "}
+                            {place.address || "N/A"}
+                          </p>
+                          <p className="text-xs text-[#4A4138]">
+                            <span className="font-medium">Neighborhood:</span>{" "}
+                            {place.neighborhood || "N/A"}
+                          </p>
+                        </div>
+                      )}
                       {place.video_id && videoMap[place.video_id] && (
                         <div className="mt-2 inline-block px-2 py-1 bg-[#F6F0E8]/70 border border-[#E0D8CC] rounded-lg">
                           <p className="text-xs text-[#4A4138] font-medium">
