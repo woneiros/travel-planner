@@ -28,7 +28,9 @@ export interface Video {
   description: string | null;
   duration_seconds: number;
   transcript: string;
+  summary: string;
   url: string;
+  places_count: number;
 }
 
 export interface VideoSummary {
@@ -61,7 +63,7 @@ export interface IngestRequest {
 
 export interface IngestResponse {
   session_id: string;
-  videos: VideoSummary[];
+  videos: Video[];
   total_places: number;
   processing_time_ms: number;
 }

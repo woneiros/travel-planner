@@ -9,9 +9,11 @@ class Video(BaseModel):
     video_id: str
     title: str
     description: str | None = None
+    summary: str | None = None
     duration_seconds: int
     transcript: str
     url: str
+    places_count: int | None = None
 
 
 class VideoSummary(BaseModel):

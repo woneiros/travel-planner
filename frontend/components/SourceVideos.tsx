@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import VideoInput from "./VideoInput";
-import type { VideoSummary } from "@/lib/types";
+import type { Video } from "@/lib/types";
 
 interface SourceVideosProps {
-  videos: VideoSummary[];
+  videos: Video[];
   onSubmit: (urls: string[]) => void;
   isLoading: boolean;
 }

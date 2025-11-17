@@ -6,10 +6,11 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
 
+from app.agents.extraction import extract_places_from_video
 from app.api.auth import CurrentUser
-from app.models.video import VideoSummary
+from app.models.place import Place
+from app.models.video import Video
 from app.observability.langfuse_client import observe, propagate_attributes
-from app.services.extraction import extract_places_from_video, generate_video_summary
 from app.services.llm_client import create_llm_client
 from app.services.session_manager import get_session_manager
 from app.services.youtube import process_video
@@ -45,7 +46,7 @@ class IngestResponse(BaseModel):
     """Response model for video ingestion."""
 
     session_id: str
-    videos: list[VideoSummary]
+    videos: list[Video]
     total_places: int
     processing_time_ms: int
 
@@ -100,8 +101,9 @@ async def ingest_videos(request: IngestRequest, current_user: CurrentUser):
         session_manager = get_session_manager()
         session = session_manager.get_or_create_session(request.session_id)
 
-        video_summaries = []
-        all_places = []
+        all_places: list[Place] = []
+        success_videos: list[Video] = []
+        error_videos: list[str] = []
 
         # Process each video
         for idx, url in enumerate(request.video_urls):
@@ -113,35 +115,24 @@ async def ingest_videos(request: IngestRequest, current_user: CurrentUser):
                 session.videos.append(video)
 
                 # Extract places and get suggested title
-                places, suggested_title = await extract_places_from_video(
-                    video, llm_client
-                )
-                all_places.extend(places)
-                session.places.extend(places)
-
+                extracted_result = await extract_places_from_video(video, llm_client)
+                all_places.extend(extracted_result.places)
+                session.places.extend(extracted_result.places)
                 # Use suggested title from LLM instead of placeholder
-                video.title = suggested_title
+                video.title = extracted_result.suggested_title
+                video.summary = extracted_result.suggested_summary
+                video.places_count = len(extracted_result.places)
 
-                # Generate summary
-                summary = await generate_video_summary(video, places, llm_client)
-
-                # Create video summary
-                video_summary = VideoSummary(
-                    video_id=video.video_id,
-                    title=suggested_title,
-                    summary=summary,
-                    places_count=len(places),
-                )
-                video_summaries.append(video_summary)
-
+                success_videos.append(video)
                 logger.info(
                     f"Completed video {video.video_id}: "
-                    f"{len(places)} places extracted"
+                    f"{len(extracted_result.places)} places extracted"
                 )
 
             except Exception as e:
                 error_msg = f"Failed to process video {url}: {str(e)}"
                 logger.error(error_msg)
+                error_videos.append(url)
                 # Continue with other videos instead of failing completely
                 # In production, you might want to track partial failures
                 continue
@@ -155,13 +146,13 @@ async def ingest_videos(request: IngestRequest, current_user: CurrentUser):
         # span.set_attribute("processing_time_ms", processing_time_ms)
 
         logger.info(
-            f"Ingestion complete: {len(video_summaries)} videos, "
+            f"Ingestion complete: {len(success_videos)} videos, "
             f"{len(all_places)} places, {processing_time_ms}ms"
         )
 
         return IngestResponse(
             session_id=session.session_id,
-            videos=video_summaries,
+            videos=success_videos,
             total_places=len(all_places),
             processing_time_ms=processing_time_ms,
         )

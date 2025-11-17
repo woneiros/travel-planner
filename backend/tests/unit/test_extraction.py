@@ -4,9 +4,9 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from app.models.place import PlaceType
+from app.agents.extraction import PlaceExtractionResult, extract_places_from_video
+from app.models.place import Place, PlaceType
 from app.models.video import Video
-from app.services.extraction import extract_places_from_video
 from app.services.llm_client import LLMClient
 
 
@@ -31,18 +31,20 @@ def mock_llm_client():
 
     # Mock the structured output response
     client.invoke_structured = AsyncMock(
-        return_value={
-            "places": [
-                {
-                    "name": "Le Bistro",
-                    "type": "restaurant",
-                    "description": "Amazing French restaurant",
-                    "timestamp_seconds": 120,
-                    "mentioned_context": "The food was incredible",
-                }
+        return_value=PlaceExtractionResult(
+            places=[
+                Place(
+                    video_id="test123",
+                    name="Le Bistro",
+                    type=PlaceType.RESTAURANT,
+                    description="Amazing French restaurant",
+                    timestamp_seconds=120,
+                    mentioned_context="The food was incredible",
+                )
             ],
-            "suggested_title": "Paris Food Tour"
-        }
+            suggested_title="Paris Food Tour",
+            suggested_summary="A delightful tour of Parisian cuisine.",
+        )
     )
 
     return client
@@ -51,14 +53,18 @@ def mock_llm_client():
 @pytest.mark.asyncio
 async def test_extract_places_from_video(sample_video, mock_llm_client):
     """Test extracting places from a video."""
-    places, suggested_title = await extract_places_from_video(sample_video, mock_llm_client)
+    extraction = await extract_places_from_video(sample_video, mock_llm_client)
 
+    places = extraction.places
+    suggested_title = extraction.suggested_title
+    suggested_summary = extraction.suggested_summary
     assert len(places) == 1
     assert places[0].name == "Le Bistro"
     assert places[0].type == PlaceType.RESTAURANT
     assert places[0].video_id == "test123"
     assert places[0].timestamp_seconds == 120
     assert suggested_title == "Paris Food Tour"
+    assert suggested_summary == "A delightful tour of Parisian cuisine."
 
     # Verify LLM was called
     mock_llm_client.invoke_structured.assert_called_once()
@@ -69,28 +75,34 @@ async def test_extract_places_with_multiple_results(sample_video, mock_llm_clien
     """Test extracting multiple places from a video."""
     # Mock response with multiple places
     mock_llm_client.invoke_structured = AsyncMock(
-        return_value={
-            "places": [
-                {
-                    "name": "Le Bistro",
-                    "type": "restaurant",
-                    "description": "French restaurant",
-                    "timestamp_seconds": 120,
-                    "mentioned_context": "Great food",
-                },
-                {
-                    "name": "Eiffel Tower",
-                    "type": "attraction",
-                    "description": "Iconic landmark",
-                    "timestamp_seconds": 300,
-                    "mentioned_context": "Must visit",
-                },
+        return_value=PlaceExtractionResult(
+            places=[
+                Place(
+                    video_id="test123",
+                    name="Le Bistro",
+                    type=PlaceType.RESTAURANT,
+                    description="French restaurant",
+                    timestamp_seconds=120,
+                    mentioned_context="Great food",
+                ),
+                Place(
+                    video_id="test123",
+                    name="Eiffel Tower",
+                    type=PlaceType.ATTRACTION,
+                    description="Iconic landmark",
+                    timestamp_seconds=300,
+                    mentioned_context="Must visit",
+                ),
             ],
-            "suggested_title": "Best of Paris"
-        }
+            suggested_title="Best of Paris",
+            suggested_summary="Exploring top spots in Paris.",
+        )
     )
 
-    places, suggested_title = await extract_places_from_video(sample_video, mock_llm_client)
+    extraction = await extract_places_from_video(sample_video, mock_llm_client)
+    places = extraction.places
+    suggested_title = extraction.suggested_title
+    suggested_summary = extraction.suggested_summary
 
     assert len(places) == 2
     assert places[0].name == "Le Bistro"
@@ -98,3 +110,4 @@ async def test_extract_places_with_multiple_results(sample_video, mock_llm_clien
     assert places[0].type == PlaceType.RESTAURANT
     assert places[1].type == PlaceType.ATTRACTION
     assert suggested_title == "Best of Paris"
+    assert suggested_summary == "Exploring top spots in Paris."
