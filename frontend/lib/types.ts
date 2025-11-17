@@ -61,6 +61,7 @@ export interface Session {
 // API Request/Response types
 export interface IngestRequest {
   video_urls: string[];
+  session_id?: string;
 }
 
 export interface IngestResponse {
