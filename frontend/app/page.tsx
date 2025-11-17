@@ -8,17 +8,12 @@ import PlaceSummary from "@/components/PlaceSummary";
 import ChatDrawer from "@/components/ChatDrawer";
 import LoadingState from "@/components/LoadingState";
 import { useApi } from "@/lib/api-client";
-import type {
-  VideoSummary,
-  Place,
-  ChatMessage,
-  IngestResponse,
-} from "@/lib/types";
+import type { Place, ChatMessage, IngestResponse, Video } from "@/lib/types";
 
 export default function Home() {
   const api = useApi();
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [videos, setVideos] = useState<VideoSummary[]>([]);
+  const [videos, setVideos] = useState<Video[]>([]);
   const [places, setPlaces] = useState<Place[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isIngesting, setIsIngesting] = useState(false);

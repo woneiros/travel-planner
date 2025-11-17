@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { Place, PlaceType, VideoSummary } from "@/lib/types";
+import type { Place, PlaceType, Video } from "@/lib/types";
 
 interface PlaceSummaryProps {
   places: Place[];
-  videos: VideoSummary[];
+  videos: Video[];
 }
 
 const categoryEmojis: Record<PlaceType, string> = {
@@ -38,9 +38,7 @@ export default function PlaceSummary({ places, videos }: PlaceSummaryProps) {
   }
 
   // Create video ID to title mapping
-  const videoMap = Object.fromEntries(
-    videos.map(v => [v.video_id, v.title])
-  );
+  const videoMap = Object.fromEntries(videos.map((v) => [v.video_id, v.title]));
 
   const placesByType = places.reduce((acc, place) => {
     if (!acc[place.type]) {
@@ -79,7 +77,10 @@ export default function PlaceSummary({ places, videos }: PlaceSummaryProps) {
           const displayName = categoryNames[placeType] || type;
 
           return (
-            <div key={type} className="border border-[#E0D8CC] rounded-xl overflow-hidden">
+            <div
+              key={type}
+              className="border border-[#E0D8CC] rounded-xl overflow-hidden"
+            >
               <button
                 onClick={() => toggleCategory(type)}
                 className="w-full flex items-center justify-between p-3 md:p-4 bg-[#F6F0E8]/50 hover:bg-[#F6F0E8] transition-colors text-left"
