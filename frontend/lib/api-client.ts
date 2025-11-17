@@ -12,6 +12,8 @@ import type {
   ChatRequest,
   ChatResponse,
   Session,
+  UpdatePlacePreferenceRequest,
+  Place,
 } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -101,6 +103,16 @@ export function useApi() {
       const token = await getToken();
       await fetchAPI(`/api/session/${sessionId}`, token, {
         method: "DELETE",
+      });
+    },
+
+    async updatePlacePreference(
+      data: UpdatePlacePreferenceRequest
+    ): Promise<Place> {
+      const token = await getToken();
+      return fetchAPI<Place>("/api/places/preference", token, {
+        method: "PUT",
+        body: JSON.stringify(data),
       });
     },
   };

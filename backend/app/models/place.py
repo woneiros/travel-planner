@@ -35,4 +35,10 @@ class Place(BaseModel):
     neighborhood: str | None = Field(
         default=None, description="Neighborhood or district area if mentioned in transcript"
     )
+    is_interested: bool | None = Field(
+        default=None, description="User marked as interested"
+    )
+    is_not_interested: bool | None = Field(
+        default=None, description="User marked as not interested"
+    )
     created_at: datetime = Field(default_factory=datetime.utcnow)

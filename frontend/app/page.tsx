@@ -44,6 +44,12 @@ export default function Home() {
     }
   };
 
+  const handlePlaceUpdate = (updatedPlace: Place) => {
+    setPlaces((prev) =>
+      prev.map((p) => (p.id === updatedPlace.id ? updatedPlace : p))
+    );
+  };
+
   const handleSendMessage = async (
     message: string,
     provider: "openai" | "anthropic"
@@ -127,7 +133,12 @@ export default function Home() {
           {isIngesting && <LoadingState message="Processing videos..." />}
 
           {videos.length > 0 && (
-            <PlaceSummary places={places} videos={videos} />
+            <PlaceSummary
+              places={places}
+              videos={videos}
+              sessionId={sessionId}
+              onPlaceUpdate={handlePlaceUpdate}
+            />
           )}
         </div>
       </div>

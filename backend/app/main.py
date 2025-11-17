@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import chat, ingest
+from app.api.routes import chat, ingest, places
 from app.config import settings
 from app.utils.logger import setup_logger
 from app.version import VERSION
@@ -65,3 +65,4 @@ async def get_version():
 # Include routers
 app.include_router(ingest.router, prefix="/api", tags=["ingest"])
 app.include_router(chat.router, prefix="/api", tags=["chat"])
+app.include_router(places.router, prefix="/api", tags=["places"])
