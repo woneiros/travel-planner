@@ -139,13 +139,15 @@ async def test_place_extraction_from_transcript_e2e():
 
     # Act - Use real LLM client
     llm_client = create_llm_client("anthropic")
-    places, suggested_title = await extract_places_from_video(video, llm_client)
+    result = await extract_places_from_video(video, llm_client)
 
     # Assert - Test result structure and validity
-    assert isinstance(places, list), "Places should be a list"
-    assert len(places) > 0, "Should extract at least one place from the transcript"
-    assert isinstance(suggested_title, str), "Suggested title should be a string"
-    assert len(suggested_title) > 0, "Suggested title should not be empty"
+    assert isinstance(result.places, list), "Places should be a list"
+    assert len(result.places) > 0, "Should extract at least one place from the transcript"
+    assert isinstance(result.suggested_title, str), "Suggested title should be a string"
+    assert len(result.suggested_title) > 0, "Suggested title should not be empty"
+    places = result.places
+    suggested_title = result.suggested_title
 
     print(f"\n✓ Extracted {len(places)} places")
     print(f"✓ Suggested title: '{suggested_title}'")
