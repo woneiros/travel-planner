@@ -27,12 +27,13 @@ export default function Home() {
     try {
       const response: IngestResponse = await api.ingestVideos({
         video_urls: urls,
+        session_id: sessionId || undefined, // Pass existing session_id to accumulate places
       });
 
       setSessionId(response.session_id);
       setVideos((prev) => [...prev, ...response.videos]);
 
-      // Fetch full session to get places
+      // Fetch full session to get all places (accumulated from all videos)
       const session = await api.getSession(response.session_id);
       setPlaces(session.places);
     } catch (err) {
@@ -41,6 +42,12 @@ export default function Home() {
     } finally {
       setIsIngesting(false);
     }
+  };
+
+  const handlePlaceUpdate = (updatedPlace: Place) => {
+    setPlaces((prev) =>
+      prev.map((p) => (p.id === updatedPlace.id ? updatedPlace : p))
+    );
   };
 
   const handleSendMessage = async (
@@ -126,7 +133,12 @@ export default function Home() {
           {isIngesting && <LoadingState message="Processing videos..." />}
 
           {videos.length > 0 && (
-            <PlaceSummary places={places} videos={videos} />
+            <PlaceSummary
+              places={places}
+              videos={videos}
+              sessionId={sessionId}
+              onPlaceUpdate={handlePlaceUpdate}
+            />
           )}
         </div>
       </div>
