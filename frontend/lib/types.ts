@@ -19,6 +19,8 @@ export interface Place {
   video_id: string;
   timestamp_seconds: number | null;
   mentioned_context: string;
+  address: string | null;
+  neighborhood: string | null;
   created_at: string;
 }
 
