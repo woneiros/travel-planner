@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     clerk_secret_key: str = ""
     clerk_publishable_key: str = ""
 
+    # Intercom
+    intercom_identity_verification_secret: str = ""
+
     # Application
     environment: str = "development"
     log_level: str = "INFO"
