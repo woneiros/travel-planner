@@ -19,8 +19,16 @@ export interface Place {
   video_id: string;
   timestamp_seconds: number | null;
   mentioned_context: string;
+  address: string | null;
+  neighborhood: string | null;
+  is_interested: boolean | null;
+  is_not_interested: boolean | null;
   created_at: string;
 }
+
+export type PlacePreference = "interested" | "not_interested" | "neutral";
+
+export type PlaceFilter = "all" | "interested" | "not_interested";
 
 export interface Video {
   video_id: string;
@@ -59,6 +67,7 @@ export interface Session {
 // API Request/Response types
 export interface IngestRequest {
   video_urls: string[];
+  session_id?: string;
 }
 
 export interface IngestResponse {
@@ -84,4 +93,10 @@ export interface ChatResponse {
   message: string;
   places_referenced: string[];
   sources: ChatSource[];
+}
+
+export interface UpdatePlacePreferenceRequest {
+  session_id: string;
+  place_id: string;
+  preference: PlacePreference;
 }
