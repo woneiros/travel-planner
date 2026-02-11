@@ -29,4 +29,10 @@ class Place(BaseModel):
     video_id: str
     timestamp_seconds: int | None = None
     mentioned_context: str
+    address: str | None = Field(
+        default=None, description="Full address of the place if mentioned in transcript"
+    )
+    neighborhood: str | None = Field(
+        default=None, description="Neighborhood or district area if mentioned in transcript"
+    )
     created_at: datetime = Field(default_factory=datetime.utcnow)

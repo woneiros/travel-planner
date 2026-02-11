@@ -19,6 +19,8 @@ export interface Place {
   video_id: string;
   timestamp_seconds: number | null;
   mentioned_context: string;
+  address: string | null;
+  neighborhood: string | null;
   created_at: string;
 }
 
@@ -59,6 +61,7 @@ export interface Session {
 // API Request/Response types
 export interface IngestRequest {
   video_urls: string[];
+  session_id?: string;
 }
 
 export interface IngestResponse {

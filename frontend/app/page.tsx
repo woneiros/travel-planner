@@ -27,12 +27,13 @@ export default function Home() {
     try {
       const response: IngestResponse = await api.ingestVideos({
         video_urls: urls,
+        session_id: sessionId || undefined, // Pass existing session_id to accumulate places
       });
 
       setSessionId(response.session_id);
       setVideos((prev) => [...prev, ...response.videos]);
 
-      // Fetch full session to get places
+      // Fetch full session to get all places (accumulated from all videos)
       const session = await api.getSession(response.session_id);
       setPlaces(session.places);
     } catch (err) {
