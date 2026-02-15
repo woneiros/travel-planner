@@ -28,10 +28,18 @@ class ExtractedPlace(BaseModel):
     mentioned_context: str = Field(
         description="What the creator said about it (their opinion/recommendation)"
     )
+    address: str | None = Field(
+        default=None,
+        description="Full address of the place (street address, city, etc.) if mentioned in the transcript. Leave empty if not available.",
+    )
+    neighborhood: str | None = Field(
+        default=None,
+        description="Neighborhood, district, or area name (e.g., 'Shibuya', 'Montmartre') if mentioned in the transcript. Leave empty if not available.",
+    )
 
 
-class PlaceExtractionResult(BaseModel):
-    """Schema for extraction result containing multiple places."""
+class LLMExtractionResult(BaseModel):
+    """Schema for LLM structured output containing extracted places."""
 
     suggested_title: str = Field(
         description="A short, human-readable 3-5 word title for this video based on its content"
@@ -39,6 +47,14 @@ class PlaceExtractionResult(BaseModel):
     suggested_summary: str = Field(
         description="A concise 1-2 sentence summary of the video based on its content"
     )
+    places: list[ExtractedPlace] = Field(description="List of extracted places")
+
+
+class PlaceExtractionResult(BaseModel):
+    """Schema for extraction result containing multiple places."""
+
+    suggested_title: str
+    suggested_summary: str
     places: list[Place] = Field(description="List of extracted places")
 
 
@@ -65,6 +81,8 @@ For each place, extract:
 3. A brief description (1-2 sentences)
 4. What the creator said about it (their opinion, why they recommend it)
 5. Approximate timestamp if determinable from context (optional)
+6. Address - Full street address (if mentioned in transcript). Include street name, number, city, etc. when available. Leave empty if not mentioned.
+7. Neighborhood - Neighborhood, district, or area name (e.g., "Shibuya", "Montmartre", "Greenwich Village") if mentioned. Leave empty if not mentioned.
 
 IMPORTANT: Use exactly these category names.
 For cafes or coffee places, use "coffee_shop" not "cafe".
@@ -123,8 +141,8 @@ Extract all recommended places from this travel video transcript."""
         ]
 
         # Use structured output to get places and suggested title
-        result: PlaceExtractionResult = await llm_client.invoke_structured(
-            messages, PlaceExtractionResult
+        result: LLMExtractionResult = await llm_client.invoke_structured(
+            messages, LLMExtractionResult
         )
 
         # Get suggested title
@@ -142,6 +160,8 @@ Extract all recommended places from this travel video transcript."""
                 video_id=video.video_id,
                 timestamp_seconds=p.timestamp_seconds,
                 mentioned_context=p.mentioned_context,
+                address=p.address,
+                neighborhood=p.neighborhood,
             )
             for p in result.places
         ]

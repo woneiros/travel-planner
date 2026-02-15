@@ -64,6 +64,8 @@ def create_search_places_tool(places: list[Place]):
                 "mentioned_context": p.mentioned_context,
                 "video_id": p.video_id,
                 "timestamp_seconds": p.timestamp_seconds,
+                "address": p.address,
+                "neighborhood": p.neighborhood,
             }
             for p in results
         ]
